@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "言寺日程",
+  "version": "1.0.0",
+  "description": "个人日程管理工具",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "http://localhost:3001/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "打开言寺日程"
+  }
+}
