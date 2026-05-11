@@ -1,19 +1,26 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, reactive } from 'vue'
 import dayjs from 'dayjs'
 import CalendarToolbar from '../components/calendar/CalendarToolbar.vue'
 import WeekCalendar from '../components/calendar/WeekCalendar.vue'
 import MonthCalendar from '../components/calendar/MonthCalendar.vue'
 import ScheduleDialog from '../components/schedule/ScheduleDialog.vue'
+import BatchScheduleDialog from '../components/schedule/BatchScheduleDialog.vue'
 import { useCalendarStore } from '../stores/calendar'
 import { useScheduleStore } from '../stores/schedule'
+import { useTemplateStore } from '../stores/templates'
+import { usePaletteStore, paletteOptions, getColorHex } from '../stores/palette'
 import { getEventColor } from '../utils/calendar'
 
 const calendarStore = useCalendarStore()
 const scheduleStore = useScheduleStore()
+const templateStore = useTemplateStore()
+const paletteStore = usePaletteStore()
 
 onMounted(() => {
   scheduleStore.load()
+  templateStore.load()
+  paletteStore.load()
 })
 
 const selectedSchedules = computed(() => {
@@ -31,18 +38,41 @@ const overview = computed(() => {
   }
 })
 
-const nowDate = dayjs().format('YYYY-MM-DD')
-const nowTime = dayjs().format('HH:mm')
-
-const upcoming = computed(() => {
-  return scheduleStore.sortedSchedules.filter((item) => {
-    if (item.date > nowDate) return true
-    if (item.date === nowDate) return item.endTime > nowTime
-    return false
-  })
-})
-
 const selectedDateLabel = computed(() => dayjs(calendarStore.selectedDate).format('YYYY年M月D日'))
+
+const showTemplateForm = ref(false)
+const newTpl = reactive({ label: '', title: '', color: 'blue', notes: '' })
+
+const showPaletteForm = ref(false)
+const newPalette = reactive({ label: '', color: 'blue', hexInput: '' })
+
+function addTemplate() {
+  if (!newTpl.label.trim() || !newTpl.title.trim()) return
+  templateStore.addTemplate({
+    label: newTpl.label.trim(),
+    title: newTpl.title.trim(),
+    color: newTpl.color,
+    notes: newTpl.notes.trim(),
+  })
+  newTpl.label = ''
+  newTpl.title = ''
+  newTpl.notes = ''
+  newTpl.color = 'blue'
+  showTemplateForm.value = false
+}
+
+function addPalette() {
+  if (!newPalette.label.trim()) return
+  const color = newPalette.hexInput.trim().startsWith('#') ? newPalette.hexInput.trim() : newPalette.color
+  paletteStore.addPalette({
+    label: newPalette.label.trim(),
+    color,
+  })
+  newPalette.label = ''
+  newPalette.color = 'blue'
+  newPalette.hexInput = ''
+  showPaletteForm.value = false
+}
 
 function exportData() {
   const data = scheduleStore.schedules
@@ -77,17 +107,15 @@ async function importData(event) {
 </script>
 
 <template>
-  <main class="min-h-screen px-6 py-6 text-[var(--ink)]">
+  <main class="min-h-screen px-6 py-4 text-[var(--ink)]">
     <div class="mx-auto max-w-[1460px] space-y-6">
       <CalendarToolbar />
 
-      <section class="grid grid-cols-[320px_minmax(0,1fr)] gap-6">
-        <aside class="space-y-6">
-          <div class="paper-panel rounded-[34px] p-6">
+      <section class="grid grid-cols-[320px_minmax(0,1fr)] items-start gap-6">
+        <aside class="space-y-4">
+          <div class="paper-panel rounded-[34px] p-4">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">today memo</p>
             <h2 class="display-serif mt-3 text-4xl leading-none">{{ overview.today }} 条安排</h2>
-            <p class="mt-3 text-sm leading-7 text-[var(--muted)]">今天的节奏会跟着你选中的日期变化。先在周视图里排时间块，再用月视图检查留白是否足够。</p>
-
             <div class="mt-6 grid grid-cols-2 gap-3">
               <div class="rounded-[26px] border border-[var(--line)] bg-white/55 p-4">
                 <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">本月</p>
@@ -100,82 +128,136 @@ async function importData(event) {
             </div>
           </div>
 
-          <div class="paper-panel rounded-[34px] p-6">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">focus day</p>
-                <div class="rounded-full border border-[var(--line)] bg-white/50 px-3 py-1 text-xs text-[var(--muted)]">
-                  {{ calendarStore.viewMode === 'week' ? '周视图' : '月视图' }}
-                </div>
-              </div>
-              <h3 class="display-serif text-3xl leading-tight">{{ selectedDateLabel }}</h3>
-            </div>
-            <p class="mt-3 text-sm leading-7 text-[var(--muted)]">点击日历中的空白区域可以快速新增日程，点击已有事项即可继续编辑。</p>
-
-            <div class="mt-5 space-y-3">
-              <article
-                v-for="item in selectedSchedules"
-                :key="item.id"
-                class="rounded-[24px] border border-[var(--line)] bg-white/58 px-4 py-4 transition hover:-translate-y-0.5"
-                @click="calendarStore.openEditDialog(item.id)"
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                      <span class="inline-flex h-2.5 w-2.5 rounded-full border border-white/70" :class="getEventColor(item.color)"></span>
-                      <p class="truncate font-medium">{{ item.title }}</p>
-                    </div>
-                    <p class="mt-2 text-sm text-[var(--muted)]">{{ item.startTime }} — {{ item.endTime }}</p>
-                  </div>
-                  <button
-                    type="button"
-                    class="rounded-full border border-[var(--line)] bg-white/70 px-3 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
-                    @click.stop="calendarStore.openEditDialog(item.id)"
-                  >
-                    编辑
-                  </button>
-                </div>
-                <p v-if="item.notes" class="mt-3 text-sm leading-6 text-[var(--muted)]">{{ item.notes }}</p>
-              </article>
-
-              <p v-if="!selectedSchedules.length" class="rounded-[24px] border border-dashed border-[var(--line)] px-4 py-5 text-sm text-[var(--muted)]">
-                这一天还是空白，适合预留深度工作、运动或休息时间。
-              </p>
-            </div>
-          </div>
-
-          <div class="paper-panel rounded-[34px] p-6">
+          <div class="paper-panel rounded-[34px] p-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">up next</p>
-                <h3 class="display-serif mt-2 text-3xl">接下来</h3>
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">palette</p>
+                <h3 class="display-serif mt-2 text-2xl">色签</h3>
               </div>
-              <span class="text-xs text-[var(--muted)]">共 {{ upcoming.length }} 条</span>
+              <button
+                type="button"
+                class="rounded-full border border-[var(--line)] bg-white/55 px-3 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
+                @click="showPaletteForm = !showPaletteForm"
+              >
+                {{ showPaletteForm ? '取消' : '新建' }}
+              </button>
             </div>
 
-            <div class="mt-5 space-y-3">
-              <article
-                v-for="item in upcoming"
-                :key="item.id"
-                class="rounded-[24px] border border-[var(--line)] bg-white/55 px-4 py-4"
+            <div v-if="showPaletteForm" class="mt-4 space-y-3">
+              <input v-model="newPalette.label" class="w-full rounded-[20px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="标签，如：靛蓝" />
+              <div class="flex gap-2">
+                <button
+                  v-for="c in paletteOptions"
+                  :key="c.value"
+                  type="button"
+                  class="h-6 w-6 rounded-full border-2 transition"
+                  :class="newPalette.color === c.value ? 'border-[var(--accent-deep)] scale-110' : 'border-transparent'"
+                  :style="{ backgroundColor: c.hex }"
+                  @click="newPalette.color = c.value; newPalette.hexInput = ''"
+                />
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-[var(--muted)]">或 HEX</span>
+                <input
+                  v-model="newPalette.hexInput"
+                  class="flex-1 rounded-[20px] border border-[var(--line)] px-3 py-2 text-sm font-mono outline-none transition focus:border-[var(--accent)] focus:bg-white"
+                  placeholder="#b05a2b"
+                />
+                <span
+                  class="inline-block h-5 w-5 shrink-0 rounded-full border border-[var(--line)]"
+                  :style="{ backgroundColor: newPalette.hexInput.trim().startsWith('#') ? newPalette.hexInput.trim() : getColorHex(newPalette.color) }"
+                ></span>
+              </div>
+              <button
+                type="button"
+                class="w-full rounded-full bg-[var(--accent-deep)] py-2 text-sm font-medium text-[#fff6ef] transition hover:bg-[var(--accent)]"
+                @click="addPalette"
               >
-                <div class="flex items-center justify-between gap-3">
-                  <p class="font-medium">{{ item.title }}</p>
-                  <span class="text-xs text-[var(--muted)]">{{ item.startTime }}</span>
-                </div>
-                <p class="mt-2 text-sm text-[var(--muted)]">{{ item.date }}</p>
-              </article>
+                添加色签
+              </button>
+            </div>
 
-              <p v-if="!upcoming.length" class="rounded-[24px] border border-dashed border-[var(--line)] px-4 py-5 text-sm text-[var(--muted)]">
-                还没有未来日程，适合先添加你的第一段固定时间块。
-              </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <div
+                v-for="p in paletteStore.palettes"
+                :key="p.value"
+                class="group relative flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs"
+              >
+                <span class="inline-block h-2.5 w-2.5 rounded-full" :style="{ backgroundColor: getColorHex(p.color) }"></span>
+                <span>{{ p.label }}</span>
+                <button
+                  type="button"
+                  class="hidden h-4 w-4 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.1)] hover:text-[var(--accent-deep)] group-hover:flex"
+                  @click="paletteStore.removePalette(p.value)"
+                >
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="paper-panel rounded-[34px] p-6">
+          <div class="paper-panel rounded-[34px] p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">templates</p>
+                <h3 class="display-serif mt-2 text-2xl">模板</h3>
+              </div>
+              <button
+                type="button"
+                class="rounded-full border border-[var(--line)] bg-white/55 px-3 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
+                @click="showTemplateForm = !showTemplateForm"
+              >
+                {{ showTemplateForm ? '取消' : '新建' }}
+              </button>
+            </div>
+
+            <div v-if="showTemplateForm" class="mt-4 space-y-3">
+              <input v-model="newTpl.label" class="w-full rounded-[20px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="标签，如：晨读" />
+              <input v-model="newTpl.title" class="w-full rounded-[20px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="标题，如：阅读时光" />
+              <input v-model="newTpl.notes" class="w-full rounded-[20px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="备注（可选）" />
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="c in paletteStore.palettes"
+                  :key="c.value"
+                  type="button"
+                  class="rounded-full border px-2.5 py-1 text-xs transition"
+                  :class="newTpl.color === c.color ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)]'"
+                  @click="newTpl.color = c.color"
+                >
+                  {{ c.label }}
+                </button>
+              </div>
+              <button
+                type="button"
+                class="w-full rounded-full bg-[var(--accent-deep)] py-2 text-sm font-medium text-[#fff6ef] transition hover:bg-[var(--accent)]"
+                @click="addTemplate"
+              >
+                添加模板
+              </button>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <div
+                v-for="t in templateStore.templates"
+                :key="t.id"
+                class="group relative flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs text-[var(--muted)]"
+              >
+                <span class="inline-block h-2 w-2 rounded-full" :style="{ backgroundColor: getColorHex(t.color) }"></span>
+                <span>{{ t.label }}</span>
+                <button
+                  type="button"
+                  class="hidden h-4 w-4 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.1)] hover:text-[var(--accent-deep)] group-hover:flex"
+                  @click="templateStore.deleteTemplate(t.id)"
+                >
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="paper-panel rounded-[34px] p-4">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">data</p>
             <h3 class="display-serif mt-2 text-2xl">数据管理</h3>
-            <p class="mt-2 text-sm leading-6 text-[var(--muted)]">导出 JSON 备份到本地，或从备份文件恢复数据。chrome.storage.local 无法跨设备同步。 </p>
             <div class="mt-4 flex gap-3">
               <button
                 type="button"
@@ -197,5 +279,6 @@ async function importData(event) {
     </div>
 
     <ScheduleDialog />
+    <BatchScheduleDialog />
   </main>
 </template>

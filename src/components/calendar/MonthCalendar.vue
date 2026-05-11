@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { useCalendarStore } from '../../stores/calendar'
 import { useScheduleStore } from '../../stores/schedule'
 import { getMonthDays, isSameMonth, toDateKey } from '../../utils/date'
-import { getEventColor } from '../../utils/calendar'
+import { getEventColor, getEventStyle } from '../../utils/calendar'
 
 const calendarStore = useCalendarStore()
 const scheduleStore = useScheduleStore()
@@ -73,6 +73,7 @@ function selectDay(dateKey) {
             :key="event.id"
             class="rounded-[20px] border px-3 py-2 text-xs shadow-[0_8px_18px_rgba(84,56,33,0.06)]"
             :class="getEventColor(event.color)"
+            :style="getEventStyle(event.color)"
             @click.stop="calendarStore.openEditDialog(event.id)"
           >
             <p class="truncate font-semibold">{{ event.title }}</p>

@@ -99,8 +99,17 @@ export const useScheduleStore = defineStore('schedule', () => {
     return schedules.value.find((item) => item.id === id) ?? null
   }
 
+  const schedulesByDate = computed(() => {
+    const map = new Map()
+    for (const item of sortedSchedules.value) {
+      if (!map.has(item.date)) map.set(item.date, [])
+      map.get(item.date).push(item)
+    }
+    return map
+  })
+
   function getSchedulesByDate(date) {
-    return sortedSchedules.value.filter((item) => item.date === date)
+    return schedulesByDate.value.get(date) || []
   }
 
   function getSchedulesByRange(startDate, endDate) {

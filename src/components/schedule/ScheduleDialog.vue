@@ -3,17 +3,13 @@ import { computed, reactive, ref, watch, nextTick } from 'vue'
 import dayjs from 'dayjs'
 import { useCalendarStore } from '../../stores/calendar'
 import { useScheduleStore } from '../../stores/schedule'
+import { useTemplateStore } from '../../stores/templates'
+import { usePaletteStore } from '../../stores/palette'
 
 const calendarStore = useCalendarStore()
 const scheduleStore = useScheduleStore()
-
-const palette = [
-  { label: '陶土', value: 'blue' },
-  { label: '苔绿', value: 'green' },
-  { label: '暮紫', value: 'purple' },
-  { label: '暖橙', value: 'orange' },
-  { label: '雾粉', value: 'pink' },
-]
+const templateStore = useTemplateStore()
+const paletteStore = usePaletteStore()
 
 const form = reactive({
   title: '',
@@ -215,7 +211,23 @@ function handleDelete() {
 
         <p v-if="errorMessage" class="mt-4 rounded-[20px] border border-[rgba(152,74,44,0.2)] bg-[rgba(176,90,43,0.1)] px-4 py-3 text-sm text-[var(--accent-deep)]">{{ errorMessage }}</p>
 
-        <form class="mt-7 space-y-5" @submit.prevent="handleSubmit">
+        <div v-if="!editingItem" class="mt-5">
+          <label class="mb-2 block text-sm font-medium text-[var(--muted)]">快速模板</label>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="t in templateStore.templates"
+              :key="t.label"
+              type="button"
+              class="rounded-full border px-3 py-1.5 text-xs transition"
+              :class="form.title === t.title ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)] hover:border-[var(--accent)]'"
+              @click="Object.assign(form, { title: t.title, color: t.color, notes: t.notes })"
+            >
+              {{ t.label }}
+            </button>
+          </div>
+        </div>
+
+        <form class="mt-5 space-y-5" @submit.prevent="handleSubmit">
           <div>
             <label class="mb-2 block text-sm font-medium text-[var(--muted)]">标题</label>
             <input v-model="form.title" class="w-full rounded-[24px] border border-[var(--line)] px-4 py-3 outline-none transition focus:border-[var(--accent)] focus:bg-white" placeholder="例如：深度工作、健身、约会" />
@@ -393,12 +405,12 @@ function handleDelete() {
             <label class="mb-2 block text-sm font-medium text-[var(--muted)]">色签</label>
             <div class="flex flex-wrap gap-3">
               <button
-                v-for="item in palette"
+                v-for="item in paletteStore.palettes"
                 :key="item.value"
                 type="button"
                 class="rounded-full border px-4 py-2 text-sm transition"
-                :class="form.color === item.value ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)] hover:border-[var(--accent)]'"
-                @click="form.color = item.value"
+                :class="form.color === item.color ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)] hover:border-[var(--accent)]'"
+                @click="form.color = item.color"
               >
                 {{ item.label }}
               </button>

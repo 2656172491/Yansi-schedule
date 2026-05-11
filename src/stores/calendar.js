@@ -7,6 +7,7 @@ export const useCalendarStore = defineStore('calendar', () => {
   const currentDate = ref(dayjs().format('YYYY-MM-DD'))
   const selectedDate = ref(dayjs().format('YYYY-MM-DD'))
   const dialogOpen = ref(false)
+  const batchDialogOpen = ref(false)
   const editingScheduleId = ref(null)
   const draftSchedule = ref(null)
 
@@ -50,11 +51,20 @@ export const useCalendarStore = defineStore('calendar', () => {
     draftSchedule.value = null
   }
 
+  function openBatchDialog() {
+    batchDialogOpen.value = true
+  }
+
+  function closeBatchDialog() {
+    batchDialogOpen.value = false
+  }
+
   return {
     viewMode,
     currentDate,
     selectedDate,
     dialogOpen,
+    batchDialogOpen,
     editingScheduleId,
     draftSchedule,
     currentDay,
@@ -65,5 +75,7 @@ export const useCalendarStore = defineStore('calendar', () => {
     openCreateDialog,
     openEditDialog,
     closeDialog,
+    openBatchDialog,
+    closeBatchDialog,
   }
 })

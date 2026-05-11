@@ -1,6 +1,6 @@
 import { toTimeNumber } from './date'
 
-const HOUR_HEIGHT = 64
+const HOUR_HEIGHT = 40
 const COLLAPSED_END_HOUR = 8
 const COLLAPSED_HEIGHT = 36
 const COLLAPSED_RATIO = COLLAPSED_HEIGHT / (COLLAPSED_END_HOUR * HOUR_HEIGHT)
@@ -32,6 +32,8 @@ export function buildWeekEvents(schedules, options = {}) {
       } else {
         top = COLLAPSED_HEIGHT + (start - COLLAPSED_END_HOUR) * HOUR_HEIGHT
       }
+    } else {
+      top = 36 + start * HOUR_HEIGHT
     }
 
     return {
@@ -43,14 +45,37 @@ export function buildWeekEvents(schedules, options = {}) {
   })
 }
 
-export function getEventColor(color) {
-  const palette = {
-    blue: 'bg-blue-500/15 border-blue-400 text-blue-950',
-    green: 'bg-emerald-500/15 border-emerald-400 text-emerald-950',
-    purple: 'bg-violet-500/15 border-violet-400 text-violet-950',
-    orange: 'bg-orange-500/15 border-orange-400 text-orange-950',
-    pink: 'bg-pink-500/15 border-pink-400 text-pink-950',
-  }
+export const paletteClasses = {
+  blue: 'bg-blue-500/15 border-blue-400 text-blue-950',
+  green: 'bg-emerald-500/15 border-emerald-400 text-emerald-950',
+  purple: 'bg-violet-500/15 border-violet-400 text-violet-950',
+  orange: 'bg-orange-500/15 border-orange-400 text-orange-950',
+  pink: 'bg-pink-500/15 border-pink-400 text-pink-950',
+  red: 'bg-red-500/15 border-red-400 text-red-950',
+  yellow: 'bg-yellow-500/15 border-yellow-400 text-yellow-950',
+  cyan: 'bg-cyan-500/15 border-cyan-400 text-cyan-950',
+  slate: 'bg-slate-500/15 border-slate-400 text-slate-950',
+  rose: 'bg-rose-500/15 border-rose-400 text-rose-950',
+}
 
-  return palette[color] ?? palette.blue
+export function getEventColor(color) {
+  if (color?.startsWith('#')) return ''
+  return paletteClasses[color] ?? paletteClasses.blue
+}
+
+function expandHex(hex) {
+  if (hex.length === 4) {
+    return '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3]
+  }
+  return hex
+}
+
+export function getEventStyle(color) {
+  if (!color?.startsWith('#')) return null
+  const full = expandHex(color)
+  return {
+    backgroundColor: full + '26',
+    borderColor: full,
+    color: '#1a1a1a',
+  }
 }
