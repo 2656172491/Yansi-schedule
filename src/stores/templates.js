@@ -2,11 +2,10 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 const defaultTemplates = [
-  { id: 'tpl-1', label: '深度工作', title: '深度工作', color: 'blue', notes: '关闭通知，专注核心任务。' },
-  { id: 'tpl-2', label: '健身', title: '健身', color: 'green', notes: '保持规律运动节奏。' },
-  { id: 'tpl-3', label: '会议', title: '会议', color: 'purple', notes: '提前准备议程。' },
-  { id: 'tpl-4', label: '阅读', title: '阅读', color: 'orange', notes: '沉浸阅读，记录灵感。' },
-  { id: 'tpl-5', label: '休息', title: '休息', color: 'pink', notes: '放松恢复，调整状态。' },
+  { id: 'tpl-1', label: '值班', title: '值班', color: 'blue', notes: '' },
+  { id: 'tpl-2', label: '上课', title: '上课', color: 'green', notes: '' },
+  { id: 'tpl-3', label: '睡觉', title: '睡觉', color: 'purple', notes: '' },
+  { id: 'tpl-4', label: '吃饭', title: '吃饭', color: 'orange', notes: '' },
 ]
 
 const STORAGE_KEY = 'schedule_templates'
