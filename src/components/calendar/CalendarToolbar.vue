@@ -27,7 +27,7 @@ const subtitle = computed(() => {
     <div class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-[var(--accent-deep)]">
-          <span class="rounded-full bg-[var(--accent-soft)] px-2.5 py-0.5">手作周历</span>
+          <span class="rounded-full bg-[var(--accent-soft)] px-2.5 py-0.5">言寺日程</span>
         </div>
         <h1 class="display-serif text-3xl leading-none text-[var(--ink)]">{{ title }}</h1>
       </div>
