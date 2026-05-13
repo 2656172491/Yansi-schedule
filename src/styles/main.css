@@ -97,6 +97,15 @@ select {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4), 0 12px 40px rgba(88, 58, 30, 0.08);
 }
 
+.hidden-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .washi-line {
   position: relative;
 }
