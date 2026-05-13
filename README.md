@@ -21,6 +21,7 @@ Yansi Schedule 是一个本地优先的中文日程管理应用，采用温暖�
 - Vue Router
 - Day.js
 - Tailwind CSS
+- Tauri 2
 
 ## 开发环境
 
@@ -50,6 +51,24 @@ npm run build
 npm run preview
 ```
 
+启动 Tauri 桌面开发模式：
+
+```bash
+npm run tauri:dev
+```
+
+构建 Windows 桌面安装包：
+
+```bash
+npm run tauri:build
+```
+
+调试构建可使用：
+
+```bash
+npx tauri build --debug
+```
+
 ## 项目结构
 
 ```text
@@ -62,6 +81,7 @@ src/
   utils/           # 日期、日历布局、存储工具
   views/           # 页面视图
 public/            # Chrome 扩展清单与后台脚本
+src-tauri/          # Tauri 桌面端封装配置和 Rust 入口
 ```
 
 ## 使用说明
@@ -75,3 +95,5 @@ public/            # Chrome 扩展清单与后台脚本
 ## 数据说明
 
 应用以本地优先方式运行，日程、模板和配色数据保存在浏览器本地存储中。导出数据后可在其他浏览器或设备中导入恢复。
+
+在 Chrome 扩展环境中，日程接口优先使用 `chrome.storage.local`。在 Tauri 或普通 WebView 环境中，会自动回退到 `localStorage`。
