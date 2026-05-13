@@ -27,6 +27,8 @@ Yansi Schedule 是一个本地优先的中文日程管理应用，采用温暖�
 
 建议使用 Node.js 20 或更高版本。
 
+桌面端打包还需要安装 Rust 与 Tauri 2 所需的 Windows 构建环境。Windows 推荐安装 Microsoft Visual Studio Build Tools，并勾选 C++ 桌面开发工具链。
+
 安装依赖：
 
 ```bash
@@ -69,6 +71,16 @@ npm run tauri:build
 npx tauri build --debug
 ```
 
+调试构建完成后，常用产物位置：
+
+```text
+src-tauri/target/debug/app.exe
+src-tauri/target/debug/bundle/msi/Yansi Schedule_0.1.0_x64_en-US.msi
+src-tauri/target/debug/bundle/nsis/Yansi Schedule_0.1.0_x64-setup.exe
+```
+
+Tauri 2 支持移动端封装，但 Android/iOS 需要额外配置移动端工具链（Android Studio、NDK/JDK、Rust 移动端 target 等）。当前仓库已验证 Windows 桌面端构建流程。
+
 ## 项目结构
 
 ```text
@@ -97,3 +109,9 @@ src-tauri/          # Tauri 桌面端封装配置和 Rust 入口
 应用以本地优先方式运行，日程、模板和配色数据保存在浏览器本地存储中。导出数据后可在其他浏览器或设备中导入恢复。
 
 在 Chrome 扩展环境中，日程接口优先使用 `chrome.storage.local`。在 Tauri 或普通 WebView 环境中，会自动回退到 `localStorage`。
+
+## 仓库
+
+```text
+git@github.com:2656172491/Yansi-schedule.git
+```
