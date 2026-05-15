@@ -68,18 +68,18 @@ body {
 }
 
 .mobile-management-backdrop {
-  background: rgba(41, 28, 19, 0.52);
-  backdrop-filter: blur(4px);
+  background: rgba(41, 28, 19, 0.64);
+  backdrop-filter: blur(5px);
 }
 
 .mobile-management-sheet {
-  border: 1px solid rgba(111, 47, 22, 0.2);
+  border: 1px solid rgba(111, 47, 22, 0.34);
   background:
-    linear-gradient(180deg, rgba(255, 250, 242, 0.99) 0%, rgba(239, 226, 208, 0.98) 100%),
-    var(--paper);
+    linear-gradient(180deg, #fff7ec 0%, #f3e2cb 100%);
   box-shadow:
-    0 24px 70px rgba(41, 28, 19, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 26px 76px rgba(41, 28, 19, 0.48),
+    0 0 0 1px rgba(255, 246, 235, 0.76) inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
 }
 
 @media (min-width: 1024px) {
