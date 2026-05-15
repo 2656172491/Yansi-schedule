@@ -134,8 +134,30 @@ src-tauri/          # Tauri 桌面端和 Android 端封装配置
 
 在 Chrome 扩展环境中，日程接口优先使用 `chrome.storage.local`。在 Tauri 或普通 WebView 环境中，会自动回退到 `localStorage`。
 
-## 仓库
+## 预览
 
-```text
-git@github.com:2656172491/Yansi-schedule.git
-```
+![预览 1](public/mk/1.png)
+
+![预览 2](public/mk/2.png)
+
+![预览 3](public/mk/3.png)
+
+![预览 4](public/mk/4.png)
+
+![预览 5](public/mk/5.png)
+
+![预览 6](public/mk/6.png)
+
+![预览 7](public/mk/7.jpg)
+
+![预览 8](public/mk/8.jpg)
+
+![预览 9](public/mk/9.jpg)
+
+![预览 10](public/mk/10.jpg)
+
+![预览 11](public/mk/11.jpg)
+
+![预览 12](public/mk/12.jpg)
+
+![预览 13](public/mk/13.jpg)
