@@ -46,6 +46,24 @@ const newTpl = reactive({ label: '', title: '', color: 'blue', notes: '' })
 
 const showPaletteForm = ref(false)
 const newPalette = reactive({ label: '', color: 'blue', hexInput: '' })
+const showMobileManagement = ref(false)
+const activeManagementPanel = ref('menu')
+
+const managementItems = computed(() => [
+  { key: 'palette', title: '色签管理', desc: `${paletteStore.palettes.length} 个色签`, tone: 'palette' },
+  { key: 'templates', title: '模板管理', desc: `${templateStore.templates.length} 个模板`, tone: 'template' },
+  { key: 'data', title: '数据管理', desc: '导入、导出备份', tone: 'data' },
+])
+
+function openMobileManagement(panel = 'menu') {
+  activeManagementPanel.value = panel
+  showMobileManagement.value = true
+}
+
+function closeMobileManagement() {
+  showMobileManagement.value = false
+  activeManagementPanel.value = 'menu'
+}
 
 function addTemplate() {
   if (!newTpl.label.trim() || !newTpl.title.trim()) return
@@ -110,7 +128,17 @@ async function importData(event) {
 <template>
   <main class="app-shell min-h-screen px-3 text-[var(--ink)] sm:px-4 lg:px-6">
     <div class="mx-auto max-w-[1460px] space-y-4 lg:space-y-6">
-      <CalendarToolbar />
+      <div class="relative">
+        <CalendarToolbar />
+        <button
+          type="button"
+          class="absolute right-0 top-0 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,248,238,0.88)] text-xl leading-none text-[var(--accent-deep)] shadow-[0_12px_28px_rgba(84,56,33,0.14)] backdrop-blur lg:hidden"
+          aria-label="打开管理设置"
+          @click="openMobileManagement()"
+        >
+          ⋯
+        </button>
+      </div>
 
       <section class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6">
         <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
@@ -132,7 +160,7 @@ async function importData(event) {
             </div>
           </div>
 
-          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
+          <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">palette</p>
@@ -200,7 +228,7 @@ async function importData(event) {
             </div>
           </div>
 
-          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
+          <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">templates</p>
@@ -259,7 +287,7 @@ async function importData(event) {
             </div>
           </div>
 
-          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
+          <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">data</p>
             <h3 class="display-serif mt-2 text-2xl">数据管理</h3>
             <div class="mt-4 flex gap-3">
@@ -295,6 +323,170 @@ async function importData(event) {
       >
         批量
       </button>
+    </div>
+
+    <div v-if="showMobileManagement" class="fixed inset-0 z-50 lg:hidden">
+      <button
+        type="button"
+        class="absolute inset-0 h-full w-full bg-[rgba(41,28,19,0.32)] backdrop-blur-[2px]"
+        aria-label="关闭管理设置"
+        @click="closeMobileManagement"
+      ></button>
+
+      <section class="bottom-sheet absolute bottom-0 left-0 right-0 max-h-[84vh] overflow-y-auto rounded-t-[30px] border border-[var(--line)] bg-[var(--paper)] px-4 pt-3 shadow-[0_-22px_60px_rgba(41,28,19,0.22)]">
+        <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[rgba(111,47,22,0.2)]"></div>
+
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.28em] text-[var(--accent-deep)]">
+              {{ activeManagementPanel === 'menu' ? 'settings' : 'manage' }}
+            </p>
+            <h3 class="display-serif mt-1 text-2xl">
+              {{ activeManagementPanel === 'menu' ? '管理' : activeManagementPanel === 'palette' ? '色签管理' : activeManagementPanel === 'templates' ? '模板管理' : '数据管理' }}
+            </h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="activeManagementPanel !== 'menu'"
+              type="button"
+              class="rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs font-medium text-[var(--muted)]"
+              @click="activeManagementPanel = 'menu'"
+            >
+              返回
+            </button>
+            <button
+              type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line)] bg-white/55 text-[var(--muted)]"
+              aria-label="关闭"
+              @click="closeMobileManagement"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div v-if="activeManagementPanel === 'menu'" class="space-y-3">
+          <button
+            v-for="item in managementItems"
+            :key="item.key"
+            type="button"
+            class="flex w-full items-center justify-between rounded-[24px] border border-[var(--line)] bg-white/55 p-4 text-left transition active:scale-[0.99]"
+            @click="activeManagementPanel = item.key"
+          >
+            <span>
+              <span class="display-serif block text-xl text-[var(--ink)]">{{ item.title }}</span>
+              <span class="mt-1 block text-xs text-[var(--muted)]">{{ item.desc }}</span>
+            </span>
+            <span
+              class="flex h-10 w-10 items-center justify-center rounded-full text-lg"
+              :class="item.tone === 'palette' ? 'bg-[rgba(176,90,43,0.14)] text-[var(--accent-deep)]' : item.tone === 'template' ? 'bg-[rgba(109,119,87,0.16)] text-[var(--olive)]' : 'bg-white text-[var(--muted)]'"
+            >
+              ›
+            </span>
+          </button>
+        </div>
+
+        <div v-else-if="activeManagementPanel === 'palette'" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-[var(--muted)]">用于日程和模板的颜色标记。</p>
+            <button
+              type="button"
+              class="rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs text-[var(--muted)]"
+              @click="showPaletteForm = !showPaletteForm"
+            >
+              {{ showPaletteForm ? '取消' : '新建' }}
+            </button>
+          </div>
+
+          <div v-if="showPaletteForm" class="space-y-3 rounded-[24px] border border-[var(--line)] bg-white/45 p-3">
+            <input v-model="newPalette.label" class="w-full rounded-[18px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="标签，如：靛蓝" />
+            <div class="flex gap-2">
+              <button
+                v-for="c in paletteOptions"
+                :key="c.value"
+                type="button"
+                class="h-7 w-7 rounded-full border-2 transition"
+                :class="newPalette.color === c.value ? 'scale-110 border-[var(--accent-deep)]' : 'border-transparent'"
+                :style="{ backgroundColor: c.hex }"
+                @click="newPalette.color = c.value; newPalette.hexInput = ''"
+              />
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-[var(--muted)]">HEX</span>
+              <input v-model="newPalette.hexInput" class="min-w-0 flex-1 rounded-[18px] border border-[var(--line)] px-3 py-2 text-sm font-mono outline-none" placeholder="#b05a2b" />
+              <span class="inline-block h-6 w-6 shrink-0 rounded-full border border-[var(--line)]" :style="{ backgroundColor: newPalette.hexInput.trim().startsWith('#') ? newPalette.hexInput.trim() : getColorHex(newPalette.color) }"></span>
+            </div>
+            <button type="button" class="w-full rounded-full bg-[var(--accent-deep)] py-2.5 text-sm font-medium text-[#fff6ef]" @click="addPalette">
+              添加色签
+            </button>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <div v-for="p in paletteStore.palettes" :key="p.value" class="flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/55 px-3 py-2 text-xs">
+              <span class="inline-block h-2.5 w-2.5 rounded-full" :style="{ backgroundColor: getColorHex(p.color) }"></span>
+              <span>{{ p.label }}</span>
+              <button type="button" class="ml-1 text-[var(--muted)]" aria-label="删除色签" @click="paletteStore.removePalette(p.value)">×</button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="activeManagementPanel === 'templates'" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-[var(--muted)]">保存常用日程内容。</p>
+            <button
+              type="button"
+              class="rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs text-[var(--muted)]"
+              @click="showTemplateForm = !showTemplateForm"
+            >
+              {{ showTemplateForm ? '取消' : '新建' }}
+            </button>
+          </div>
+
+          <div v-if="showTemplateForm" class="space-y-3 rounded-[24px] border border-[var(--line)] bg-white/45 p-3">
+            <input v-model="newTpl.label" class="w-full rounded-[18px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="标签，如：晨读" />
+            <input v-model="newTpl.title" class="w-full rounded-[18px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="标题，如：阅读时光" />
+            <input v-model="newTpl.notes" class="w-full rounded-[18px] border border-[var(--line)] px-3 py-2 text-sm outline-none" placeholder="备注（可选）" />
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="c in paletteStore.palettes"
+                :key="c.value"
+                type="button"
+                class="rounded-full border px-2.5 py-1 text-xs transition"
+                :class="newTpl.color === c.color ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)]'"
+                @click="newTpl.color = c.color"
+              >
+                {{ c.label }}
+              </button>
+            </div>
+            <button type="button" class="w-full rounded-full bg-[var(--accent-deep)] py-2.5 text-sm font-medium text-[#fff6ef]" @click="addTemplate">
+              添加模板
+            </button>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <div v-for="t in templateStore.templates" :key="t.id" class="flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-white/55 px-3 py-2 text-xs text-[var(--muted)]">
+              <span class="inline-block h-2 w-2 rounded-full" :style="{ backgroundColor: getColorHex(t.color) }"></span>
+              <span>{{ t.label }}</span>
+              <button type="button" class="ml-1 text-[var(--muted)]" aria-label="删除模板" @click="templateStore.deleteTemplate(t.id)">×</button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="space-y-3">
+          <p class="text-sm leading-6 text-[var(--muted)]">备份文件仅包含日程数据，可用于迁移或恢复。</p>
+          <button
+            type="button"
+            class="w-full rounded-full border border-[var(--line)] bg-white/60 px-4 py-3 text-sm font-semibold text-[var(--accent-deep)]"
+            @click="exportData"
+          >
+            导出备份
+          </button>
+          <label class="block w-full cursor-pointer rounded-full bg-[var(--accent-deep)] px-4 py-3 text-center text-sm font-semibold text-[#fff6ef]">
+            <input type="file" accept=".json" class="hidden" @change="importData" />
+            导入恢复
+          </label>
+        </div>
+      </section>
     </div>
 
     <ScheduleDialog />
