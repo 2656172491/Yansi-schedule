@@ -136,28 +136,23 @@ src-tauri/          # Tauri 桌面端和 Android 端封装配置
 
 ## 预览
 
-![预览 1](public/mk/1.png)
+桌面端和移动端保持同一套温暖纸张视觉，移动端针对小屏幕重排工具栏、日程列表和管理入口。
 
-![预览 2](public/mk/2.png)
+<p align="center">
+  <img src="public/mk/1.png" alt="言寺日程主界面预览" width="820" />
+</p>
 
-![预览 3](public/mk/3.png)
+<details>
+<summary>展开更多界面截图</summary>
 
-![预览 4](public/mk/4.png)
+| 桌面端 | 移动端 |
+| --- | --- |
+| <img src="public/mk/2.png" alt="桌面端周视图" width="420" /> | <img src="public/mk/7.jpg" alt="移动端周视图" width="220" /> |
+| <img src="public/mk/3.png" alt="桌面端月视图" width="420" /> | <img src="public/mk/8.jpg" alt="移动端月视图" width="220" /> |
+| <img src="public/mk/4.png" alt="桌面端日程编辑" width="420" /> | <img src="public/mk/9.jpg" alt="移动端日程编辑" width="220" /> |
+| <img src="public/mk/5.png" alt="桌面端管理面板" width="420" /> | <img src="public/mk/10.jpg" alt="移动端管理入口" width="220" /> |
+| <img src="public/mk/6.png" alt="桌面端数据管理" width="420" /> | <img src="public/mk/11.jpg" alt="移动端色签管理" width="220" /> |
+|  | <img src="public/mk/12.jpg" alt="移动端模板管理" width="220" /> |
+|  | <img src="public/mk/13.jpg" alt="移动端数据管理" width="220" /> |
 
-![预览 5](public/mk/5.png)
-
-![预览 6](public/mk/6.png)
-
-![预览 7](public/mk/7.jpg)
-
-![预览 8](public/mk/8.jpg)
-
-![预览 9](public/mk/9.jpg)
-
-![预览 10](public/mk/10.jpg)
-
-![预览 11](public/mk/11.jpg)
-
-![预览 12](public/mk/12.jpg)
-
-![预览 13](public/mk/13.jpg)
+</details>
