@@ -1,6 +1,6 @@
-# Yansi Schedule
+# 言寺日程
 
-Yansi Schedule 是一个本地优先的中文日程管理应用，采用温暖纸张质感的日历界面，支持周视图、月视图、模板、配色和数据导入导出。
+言寺日程是一个本地优先的中文日程管理应用，采用温暖纸张质感的日历界面，支持周视图、月视图、模板、配色、数据导入导出，以及 Tauri 2 桌面端和 Android 移动端封装。
 
 ## 功能特点
 
@@ -12,6 +12,8 @@ Yansi Schedule 是一个本地优先的中文日程管理应用，采用温暖�
 - 自定义配色：支持预设颜色和自定义 HEX 颜色。
 - 本地存储：数据保存在浏览器本地存储中，刷新后保留。
 - 数据管理：支持导入、导出和清空本地数据。
+- 移动端适配：小屏幕使用紧凑顶部栏、底部快捷操作和居中管理浮窗。
+- 沉浸式状态栏：Android 端预留顶部安全区，避免内容和状态栏重叠。
 
 ## 技术栈
 
@@ -28,6 +30,13 @@ Yansi Schedule 是一个本地优先的中文日程管理应用，采用温暖�
 建议使用 Node.js 20 或更高版本。
 
 桌面端打包还需要安装 Rust 与 Tauri 2 所需的 Windows 构建环境。Windows 推荐安装 Microsoft Visual Studio Build Tools，并勾选 C++ 桌面开发工具链。
+
+Android 打包需要 Android SDK、NDK、JDK 和 Rust Android target。当前 Windows 环境中如果命令行未继承用户环境变量，可以在同一个 PowerShell 会话中临时加载：
+
+```powershell
+$env:ANDROID_HOME=[Environment]::GetEnvironmentVariable('ANDROID_HOME','User')
+$env:NDK_HOME=[Environment]::GetEnvironmentVariable('NDK_HOME','User')
+```
 
 安装依赖：
 
@@ -65,7 +74,7 @@ npm run tauri:dev
 npm run tauri:android:dev
 ```
 
-构建 Windows 桌面安装包：
+构建桌面端安装包：
 
 ```bash
 npm run tauri:build
@@ -83,17 +92,17 @@ npm run tauri:android:build
 npx tauri build --debug
 ```
 
-调试构建完成后，常用产物位置：
+常用发版产物位置：
 
 ```text
-src-tauri/target/debug/app.exe
-src-tauri/target/debug/bundle/msi/Yansi Schedule_0.1.0_x64_en-US.msi
-src-tauri/target/debug/bundle/nsis/Yansi Schedule_0.1.0_x64-setup.exe
-src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+src-tauri/target/release/言寺日程.exe
+src-tauri/target/release/bundle/msi/言寺日程_0.1.0_x64_en-US.msi
+src-tauri/target/release/bundle/nsis/言寺日程_0.1.0_x64-setup.exe
+src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
 src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab
 ```
 
-Tauri 2 支持移动端封装。Android 需要 Android Studio、NDK/JDK 和 Rust Android target；当前仓库已配置 Android Gradle 工程，并保留 Windows 桌面端构建流程。
+Tauri 2 支持移动端封装。当前仓库已配置 Android Gradle 工程，并保留 Windows 桌面端构建流程。
 
 ## 项目结构
 
@@ -107,16 +116,17 @@ src/
   utils/           # 日期、日历布局、存储工具
   views/           # 页面视图
 public/            # Chrome 扩展清单与后台脚本
-src-tauri/          # Tauri 桌面端封装配置和 Rust 入口
+src-tauri/          # Tauri 桌面端和 Android 端封装配置
 ```
 
 ## 使用说明
 
 1. 在顶部工具栏切换周视图或月视图。
-2. 单击日期可选中当天，并在侧栏查看当天日程。
+2. 单击日期可选中当天，并查看当天日程列表。
 3. 双击月视图日期或点击周视图空白时间段可创建日程。
 4. 点击已有日程可打开编辑弹窗。
-5. 在侧栏中可管理模板、配色和本地数据。
+5. 桌面端可在侧栏管理模板、配色和本地数据。
+6. 移动端点击顶部 `⋯ 管理` 打开居中管理浮窗，进入色签、模板和数据管理。
 
 ## 数据说明
 
