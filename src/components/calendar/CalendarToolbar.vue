@@ -26,14 +26,14 @@ const subtitle = computed(() => {
 <template>
   <header class="paper-panel rounded-[28px] px-4 py-3 lg:rounded-[36px] lg:px-5">
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
-      <div class="grid min-w-0 grid-cols-[64px_minmax(0,1fr)_64px] items-center gap-2 lg:flex lg:justify-start lg:gap-4">
-        <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-[var(--accent-deep)]">
-          <span class="rounded-full bg-[var(--accent-soft)] px-2.5 py-0.5">言寺日程</span>
+      <div class="grid min-w-0 grid-cols-[82px_minmax(0,1fr)_72px] items-center gap-2 lg:flex lg:justify-start lg:gap-4">
+        <div class="flex min-w-0 items-center gap-2 text-[9px] uppercase tracking-[0.18em] text-[var(--accent-deep)] lg:text-[10px] lg:tracking-[0.32em]">
+          <span class="whitespace-nowrap rounded-full bg-[var(--accent-soft)] px-2 py-0.5 lg:px-2.5">言寺日程</span>
         </div>
         <h1 class="display-serif min-w-0 truncate text-center text-2xl leading-none text-[var(--ink)] sm:text-3xl lg:text-left">{{ title }}</h1>
         <button
           type="button"
-          class="justify-self-end rounded-full border border-[rgba(111,47,22,0.28)] bg-[var(--accent-deep)] px-2.5 py-1.5 text-xs font-semibold text-[#fff6ef] shadow-[0_10px_22px_rgba(73,44,24,0.22)] lg:hidden"
+          class="whitespace-nowrap justify-self-end rounded-full border border-[rgba(111,47,22,0.28)] bg-[var(--accent-deep)] px-2 py-1.5 text-xs font-semibold text-[#fff6ef] shadow-[0_10px_22px_rgba(73,44,24,0.22)] lg:hidden"
           aria-label="打开管理设置"
           @click="emit('open-management')"
         >
