@@ -149,7 +149,7 @@ async function importData(event) {
 <template>
   <main class="app-shell min-h-screen px-3 text-[var(--ink)] sm:px-4 lg:px-6">
     <div class="mx-auto max-w-[1460px] space-y-4 lg:space-y-6">
-      <CalendarToolbar />
+      <CalendarToolbar @open-management="openMobileManagement()" />
 
       <section class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6">
         <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
@@ -302,16 +302,6 @@ async function importData(event) {
         </aside>
       </section>
     </div>
-
-    <button
-      type="button"
-      class="mobile-management-trigger fixed right-3 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold lg:hidden"
-      aria-label="打开管理设置"
-      @click="openMobileManagement()"
-    >
-      <span class="text-lg leading-none">⋯</span>
-      <span>管理</span>
-    </button>
 
     <div class="mobile-action-bar fixed left-3 right-3 z-40 grid grid-cols-[1fr_auto] gap-2 lg:hidden">
       <button

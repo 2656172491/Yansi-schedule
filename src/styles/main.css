@@ -53,17 +53,6 @@ body {
   bottom: calc(1rem + var(--safe-bottom));
 }
 
-.mobile-management-trigger {
-  top: calc(0.9rem + var(--mobile-status-gap));
-  right: calc(0.75rem + var(--safe-right, 0px));
-  border: 1px solid rgba(111, 47, 22, 0.28);
-  background:
-    linear-gradient(135deg, rgba(111, 47, 22, 0.96), rgba(176, 90, 43, 0.95)),
-    var(--accent-deep);
-  color: #fff6ef;
-  box-shadow: 0 16px 34px rgba(73, 44, 24, 0.28);
-}
-
 .bottom-sheet {
   padding-bottom: calc(1.25rem + var(--safe-bottom));
 }
