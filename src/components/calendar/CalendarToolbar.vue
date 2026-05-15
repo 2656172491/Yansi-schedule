@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import dayjs from 'dayjs'
 import { useCalendarStore } from '../../stores/calendar'
-import { formatDisplayDate, getWeekRange } from '../../utils/date'
+import { getWeekRange } from '../../utils/date'
 
 const calendarStore = useCalendarStore()
 const emit = defineEmits(['open-management'])
@@ -10,10 +10,10 @@ const emit = defineEmits(['open-management'])
 const title = computed(() => {
   if (calendarStore.viewMode === 'week') {
     const { start, end } = getWeekRange(calendarStore.currentDate)
-    return `${formatDisplayDate(start, 'M月D日')} — ${formatDisplayDate(end, 'M月D日')}`
+    return `${dayjs(start).format('MM.DD')}-${dayjs(end).format('MM.DD')}`
   }
 
-  return dayjs(calendarStore.currentDate).format('YYYY年M月')
+  return dayjs(calendarStore.currentDate).format('YYYY.MM')
 })
 
 const subtitle = computed(() => {
@@ -30,7 +30,7 @@ const subtitle = computed(() => {
         <div class="flex min-w-0 items-center gap-2 text-[9px] uppercase tracking-[0.18em] text-[var(--accent-deep)] lg:text-[10px] lg:tracking-[0.32em]">
           <span class="whitespace-nowrap rounded-full bg-[var(--accent-soft)] px-2 py-0.5 lg:px-2.5">言寺日程</span>
         </div>
-        <h1 class="daily-number min-w-0 truncate text-center text-2xl font-semibold leading-none text-[var(--ink)] sm:text-3xl lg:text-left">{{ title }}</h1>
+        <h1 class="daily-number min-w-0 truncate text-center text-xl font-semibold leading-none text-[var(--ink)] sm:text-2xl lg:text-left lg:text-3xl">{{ title }}</h1>
         <button
           type="button"
           class="whitespace-nowrap justify-self-end rounded-full border border-[rgba(111,47,22,0.28)] bg-[var(--accent-deep)] px-2 py-1.5 text-xs font-semibold text-[#fff6ef] shadow-[0_10px_22px_rgba(73,44,24,0.22)] lg:hidden"
