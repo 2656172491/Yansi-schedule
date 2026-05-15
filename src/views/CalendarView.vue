@@ -24,23 +24,6 @@ onMounted(() => {
   paletteStore.load()
 })
 
-const selectedSchedules = computed(() => {
-  return scheduleStore.getSchedulesByDate(calendarStore.selectedDate)
-})
-
-const overview = computed(() => {
-  return {
-    total: scheduleStore.schedules.length,
-    today: selectedSchedules.value.length,
-    month: scheduleStore.getSchedulesByRange(
-      dayjs(calendarStore.currentDate).startOf('month').format('YYYY-MM-DD'),
-      dayjs(calendarStore.currentDate).endOf('month').format('YYYY-MM-DD'),
-    ).length,
-  }
-})
-
-const selectedDateLabel = computed(() => dayjs(calendarStore.selectedDate).format('YYYY年M月D日'))
-
 const showTemplateForm = ref(false)
 const newTpl = reactive({ label: '', title: '', color: 'blue', notes: '' })
 
@@ -166,54 +149,12 @@ async function importData(event) {
 <template>
   <main class="app-shell min-h-screen px-3 text-[var(--ink)] sm:px-4 lg:px-6">
     <div class="mx-auto max-w-[1460px] space-y-4 lg:space-y-6">
-      <section class="paper-panel rounded-[26px] p-4 lg:hidden">
-        <div class="flex items-start justify-between gap-3">
-          <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">today memo</p>
-          <button
-            type="button"
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,248,238,0.9)] text-xl leading-none text-[var(--accent-deep)] shadow-[0_10px_22px_rgba(84,56,33,0.14)]"
-            aria-label="打开管理设置"
-            @click="openMobileManagement()"
-          >
-            ⋯
-          </button>
-        </div>
-        <h2 class="display-serif mt-3 text-3xl leading-none">{{ overview.today }} 条安排</h2>
-        <p class="mt-2 text-sm text-[var(--muted)]">{{ selectedDateLabel }}</p>
-        <div class="mt-4 grid grid-cols-2 gap-3">
-          <div class="rounded-[22px] border border-[var(--line)] bg-white/55 p-3">
-            <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">本月</p>
-            <p class="mt-2 text-2xl font-semibold">{{ overview.month }}</p>
-          </div>
-          <div class="rounded-[22px] border border-[var(--line)] bg-[var(--accent-soft)] p-3">
-            <p class="text-xs uppercase tracking-[0.24em] text-[var(--accent-deep)]">全部</p>
-            <p class="mt-2 text-2xl font-semibold text-[var(--accent-deep)]">{{ overview.total }}</p>
-          </div>
-        </div>
-      </section>
-
       <CalendarToolbar />
 
       <section class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6">
         <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
 
         <aside class="space-y-4 lg:order-first">
-          <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
-            <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">today memo</p>
-            <h2 class="display-serif mt-3 text-3xl leading-none lg:text-4xl">{{ overview.today }} 条安排</h2>
-            <p class="mt-2 text-sm text-[var(--muted)]">{{ selectedDateLabel }}</p>
-            <div class="mt-4 grid grid-cols-2 gap-3 lg:mt-6">
-              <div class="rounded-[22px] border border-[var(--line)] bg-white/55 p-3 lg:rounded-[26px] lg:p-4">
-                <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">本月</p>
-                <p class="mt-2 text-2xl font-semibold lg:mt-3 lg:text-3xl">{{ overview.month }}</p>
-              </div>
-              <div class="rounded-[22px] border border-[var(--line)] bg-[var(--accent-soft)] p-3 lg:rounded-[26px] lg:p-4">
-                <p class="text-xs uppercase tracking-[0.24em] text-[var(--accent-deep)]">全部</p>
-                <p class="mt-2 text-2xl font-semibold text-[var(--accent-deep)] lg:mt-3 lg:text-3xl">{{ overview.total }}</p>
-              </div>
-            </div>
-          </div>
-
           <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
             <div class="flex items-center justify-between">
               <div>
@@ -362,6 +303,16 @@ async function importData(event) {
       </section>
     </div>
 
+    <button
+      type="button"
+      class="mobile-management-trigger fixed right-3 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold lg:hidden"
+      aria-label="打开管理设置"
+      @click="openMobileManagement()"
+    >
+      <span class="text-lg leading-none">⋯</span>
+      <span>管理</span>
+    </button>
+
     <div class="mobile-action-bar fixed left-3 right-3 z-40 grid grid-cols-[1fr_auto] gap-2 lg:hidden">
       <button
         type="button"
@@ -379,7 +330,7 @@ async function importData(event) {
       </button>
     </div>
 
-    <div v-if="showMobileManagement" class="fixed inset-0 z-50 lg:hidden">
+    <div v-if="showMobileManagement" class="fixed inset-0 z-50 flex items-center justify-center px-4 lg:hidden">
       <button
         type="button"
         class="mobile-management-backdrop absolute inset-0 h-full w-full"
@@ -387,9 +338,7 @@ async function importData(event) {
         @click="closeMobileManagement"
       ></button>
 
-      <section class="mobile-management-sheet bottom-sheet absolute bottom-0 left-0 right-0 max-h-[84vh] overflow-y-auto rounded-t-[30px] px-4 pt-3">
-        <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[rgba(111,47,22,0.2)]"></div>
-
+      <section class="mobile-management-sheet relative z-10 max-h-[78vh] w-full max-w-[380px] overflow-y-auto rounded-[28px] px-4 py-4">
         <div class="mb-4 flex items-center justify-between gap-3">
           <div>
             <p class="text-[11px] uppercase tracking-[0.28em] text-[var(--accent-deep)]">
