@@ -200,7 +200,7 @@ function handleDelete() {
       class="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(36,25,15,0.28)] px-3 pb-0 pt-12 backdrop-blur-md sm:px-4 lg:items-center lg:p-4"
       @click.self="calendarStore.closeDialog()"
     >
-      <section class="paper-panel bottom-sheet max-h-[calc(100dvh-48px)] w-full max-w-2xl overflow-y-auto rounded-t-[30px] p-5 lg:max-h-[calc(100vh-80px)] lg:rounded-[36px] lg:p-7">
+      <section class="paper-panel bottom-sheet flex max-h-[calc(100dvh-48px)] w-full max-w-2xl flex-col rounded-t-[30px] p-5 lg:max-h-[calc(100vh-80px)] lg:rounded-[36px] lg:p-7">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">{{ editingItem ? '编辑日程' : '新建日程' }}</p>
@@ -211,23 +211,24 @@ function handleDelete() {
 
         <p v-if="errorMessage" class="mt-4 rounded-[20px] border border-[rgba(152,74,44,0.2)] bg-[rgba(176,90,43,0.1)] px-4 py-3 text-sm text-[var(--accent-deep)]">{{ errorMessage }}</p>
 
-        <div v-if="!editingItem" class="mt-5">
-          <label class="mb-2 block text-sm font-medium text-[var(--muted)]">快速模板</label>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="t in templateStore.templates"
-              :key="t.label"
-              type="button"
-              class="rounded-full border px-3 py-1.5 text-xs transition"
-              :class="form.title === t.title ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)] hover:border-[var(--accent)]'"
-              @click="Object.assign(form, { title: t.title, color: t.color, notes: t.notes })"
-            >
-              {{ t.label }}
-            </button>
+        <div class="mt-5 min-h-0 overflow-y-auto overscroll-contain pr-1">
+          <div v-if="!editingItem">
+            <label class="mb-2 block text-sm font-medium text-[var(--muted)]">快速模板</label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="t in templateStore.templates"
+                :key="t.label"
+                type="button"
+                class="rounded-full border px-3 py-1.5 text-xs transition"
+                :class="form.title === t.title ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)] hover:border-[var(--accent)]'"
+                @click="Object.assign(form, { title: t.title, color: t.color, notes: t.notes })"
+              >
+                {{ t.label }}
+              </button>
+            </div>
           </div>
-        </div>
 
-        <form class="mt-5 space-y-5" @submit.prevent="handleSubmit">
+          <form class="mt-5 space-y-5" @submit.prevent="handleSubmit">
           <div>
             <label class="mb-2 block text-sm font-medium text-[var(--muted)]">标题</label>
             <input v-model="form.title" class="w-full rounded-[24px] border border-[var(--line)] px-4 py-3 outline-none transition focus:border-[var(--accent)] focus:bg-white" placeholder="例如：深度工作、健身、约会" />
@@ -442,7 +443,8 @@ function handleDelete() {
               </button>
             </div>
           </div>
-        </form>
+          </form>
+        </div>
       </section>
     </div>
   </Teleport>
