@@ -16,6 +16,7 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-status-gap: max(var(--safe-top), 28px);
   color: var(--ink);
   background: var(--bg);
   font-family: "Outfit", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -44,7 +45,7 @@ body {
 }
 
 .app-shell {
-  padding-top: calc(0.75rem + var(--safe-top));
+  padding-top: calc(0.9rem + var(--mobile-status-gap));
   padding-bottom: calc(7rem + var(--safe-bottom));
 }
 
@@ -53,7 +54,7 @@ body {
 }
 
 .mobile-management-trigger {
-  top: calc(0.9rem + var(--safe-top));
+  top: calc(0.9rem + var(--mobile-status-gap));
   right: calc(0.75rem + var(--safe-right, 0px));
   border: 1px solid rgba(111, 47, 22, 0.28);
   background:
