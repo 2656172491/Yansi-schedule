@@ -211,10 +211,11 @@ async function importData(event) {
                 class="group relative flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs"
               >
                 <span class="inline-block h-2.5 w-2.5 rounded-full" :style="{ backgroundColor: getColorHex(p.color) }"></span>
-                <span>{{ p.label }}</span>
+                <span class="whitespace-nowrap">{{ p.label }}</span>
                 <button
                   type="button"
-                  class="hidden h-4 w-4 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.1)] hover:text-[var(--accent-deep)] group-hover:flex"
+                  class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-[var(--line)] bg-[#fffaf2] text-[var(--muted)] opacity-0 shadow-sm transition hover:bg-[rgba(176,90,43,0.1)] hover:text-[var(--accent-deep)] group-hover:opacity-100"
+                  aria-label="删除色签"
                   @click="paletteStore.removePalette(p.value)"
                 >
                   <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -270,10 +271,11 @@ async function importData(event) {
                 class="group relative flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-white/55 px-3 py-1.5 text-xs text-[var(--muted)]"
               >
                 <span class="inline-block h-2 w-2 rounded-full" :style="{ backgroundColor: getColorHex(t.color) }"></span>
-                <span>{{ t.label }}</span>
+                <span class="whitespace-nowrap">{{ t.label }}</span>
                 <button
                   type="button"
-                  class="hidden h-4 w-4 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.1)] hover:text-[var(--accent-deep)] group-hover:flex"
+                  class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-[var(--line)] bg-[#fffaf2] text-[var(--muted)] opacity-0 shadow-sm transition hover:bg-[rgba(176,90,43,0.1)] hover:text-[var(--accent-deep)] group-hover:opacity-100"
+                  aria-label="删除模板"
                   @click="templateStore.deleteTemplate(t.id)"
                 >
                   <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
