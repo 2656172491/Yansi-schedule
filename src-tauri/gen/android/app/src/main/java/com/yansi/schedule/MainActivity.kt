@@ -19,10 +19,12 @@ class MainActivity : TauriActivity() {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       window.setDecorFitsSystemWindows(false)
-      window.insetsController?.setSystemBarsAppearance(
-        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-      )
+      window.decorView.post {
+        window.decorView.windowInsetsController?.setSystemBarsAppearance(
+          WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+          WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+        )
+      }
       return
     }
 
