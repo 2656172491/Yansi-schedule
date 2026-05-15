@@ -77,7 +77,7 @@ function selectDay(dateKey) {
           {{ item.day.format('ddd') }}
         </p>
         <div class="mt-2 flex items-end justify-between gap-3">
-          <p class="display-serif text-2xl leading-none text-[var(--ink)]">
+          <p class="daily-number text-2xl font-semibold leading-none text-[var(--ink)]">
             {{ item.day.format('D') }}
           </p>
           <span v-if="item.isToday" class="rounded-full bg-[var(--accent-deep)] px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-[#fff4eb]">
@@ -185,7 +185,7 @@ function selectDay(dateKey) {
         >
           <p class="text-[10px] uppercase tracking-[0.16em] opacity-75">{{ item.day.format('ddd') }}</p>
           <div class="mt-1 flex items-end justify-between gap-2">
-            <span class="display-serif text-2xl leading-none">{{ item.day.format('D') }}</span>
+            <span class="daily-number text-2xl font-semibold leading-none">{{ item.day.format('D') }}</span>
             <span v-if="item.items.length" class="text-[10px] font-semibold">{{ item.items.length }}</span>
           </div>
           <p v-if="item.isToday" class="mt-1 text-[10px] opacity-80">今天</p>
@@ -196,7 +196,7 @@ function selectDay(dateKey) {
         <div class="flex items-end justify-between gap-3">
           <div>
             <p class="text-[11px] uppercase tracking-[0.28em] text-[var(--accent-deep)]">day plan</p>
-            <h2 class="display-serif mt-1 text-3xl leading-none text-[var(--ink)]">{{ selectedDay.day.format('M月D日') }}</h2>
+            <h2 class="daily-number mt-1 text-3xl font-semibold leading-none text-[var(--ink)]">{{ selectedDay.day.format('M月D日') }}</h2>
           </div>
           <button
             type="button"

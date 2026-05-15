@@ -121,6 +121,12 @@ select {
   font-family: "Cormorant Garamond", "STSong", serif;
 }
 
+.daily-number {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
 .paper-panel {
   position: relative;
   overflow: hidden;

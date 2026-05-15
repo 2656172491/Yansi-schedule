@@ -61,7 +61,7 @@ function selectDay(dateKey) {
       >
         <div class="shrink-0">
           <div class="flex items-center justify-between gap-2">
-            <span class="display-serif text-xl leading-none lg:text-2xl">{{ item.day.format('D') }}</span>
+            <span class="daily-number text-xl font-semibold leading-none lg:text-2xl">{{ item.day.format('D') }}</span>
             <span
               v-if="item.isToday"
               class="hidden rounded-full border border-[rgba(111,47,22,0.18)] bg-[rgba(176,90,43,0.12)] px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--accent-deep)] lg:inline"
@@ -102,7 +102,7 @@ function selectDay(dateKey) {
       <div class="flex items-center justify-between gap-3">
         <div>
           <p class="text-[11px] uppercase tracking-[0.28em] text-[var(--accent-deep)]">selected</p>
-          <h2 class="display-serif mt-1 text-3xl leading-none text-[var(--ink)]">{{ selectedDay.day.format('M月D日') }}</h2>
+          <h2 class="daily-number mt-1 text-3xl font-semibold leading-none text-[var(--ink)]">{{ selectedDay.day.format('M月D日') }}</h2>
         </div>
         <button
           type="button"
