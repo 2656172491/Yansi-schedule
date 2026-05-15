@@ -87,17 +87,17 @@ function handleClose() {
   <Teleport to="body">
     <div
       v-if="calendarStore.batchDialogOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(36,25,15,0.28)] px-4 backdrop-blur-md"
+      class="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(36,25,15,0.28)] px-3 pb-0 pt-12 backdrop-blur-md sm:px-4 lg:items-center lg:p-4"
       @click.self="handleClose()"
     >
-      <section class="paper-panel flex w-full max-w-3xl flex-col rounded-[36px] p-7" style="max-height: calc(100vh - 80px);">
+      <section class="paper-panel bottom-sheet flex max-h-[calc(100dvh-48px)] w-full max-w-3xl flex-col rounded-t-[30px] p-5 lg:rounded-[36px] lg:p-7" style="max-height: calc(100vh - 80px);">
         <div class="flex items-start justify-between gap-4">
-          <div>
+          <div class="min-w-0">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">批量添加</p>
             <h2 class="display-serif mt-3 text-3xl leading-none text-[var(--ink)]">一次安排多段时间</h2>
           </div>
           <button
-            class="rounded-full border border-[var(--line)] bg-white/50 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
+            class="shrink-0 rounded-full border border-[var(--line)] bg-white/50 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
             @click="handleClose()"
           >
             关闭
@@ -113,9 +113,9 @@ function handleClose() {
             <div
               v-for="(row, index) in rows"
               :key="index"
-              class="grid grid-cols-[1fr_140px_100px_100px_40px] items-end gap-3"
+              class="grid grid-cols-[1fr_40px] gap-3 rounded-[24px] border border-[var(--line)] bg-white/35 p-3 lg:grid-cols-[1fr_140px_100px_100px_40px] lg:items-end lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0"
             >
-              <div>
+              <div class="col-span-1 lg:col-span-1">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">标题</label>
                 <input
                   v-model="row.title"
@@ -123,7 +123,17 @@ function handleClose() {
                   placeholder="例如：健身"
                 />
               </div>
-              <div>
+              <button
+                type="button"
+                class="mt-5 flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.08)] hover:text-[var(--accent-deep)] lg:hidden"
+                @click="removeRow(index)"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <div class="col-span-2 lg:col-span-1">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">日期</label>
                 <input
                   v-model="row.date"
@@ -149,7 +159,7 @@ function handleClose() {
               </div>
               <button
                 type="button"
-                class="mb-0.5 flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.08)] hover:text-[var(--accent-deep)]"
+                class="mb-0.5 hidden h-9 w-9 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[rgba(176,90,43,0.08)] hover:text-[var(--accent-deep)] lg:flex"
                 @click="removeRow(index)"
               >
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

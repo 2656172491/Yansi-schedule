@@ -23,17 +23,17 @@ const subtitle = computed(() => {
 </script>
 
 <template>
-  <header class="paper-panel rounded-[36px] px-5 py-3">
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
+  <header class="paper-panel rounded-[28px] px-4 py-3 lg:rounded-[36px] lg:px-5">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+      <div class="flex min-w-0 items-center justify-between gap-3 lg:justify-start lg:gap-4">
         <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-[var(--accent-deep)]">
           <span class="rounded-full bg-[var(--accent-soft)] px-2.5 py-0.5">言寺日程</span>
         </div>
-        <h1 class="display-serif text-3xl leading-none text-[var(--ink)]">{{ title }}</h1>
+        <h1 class="display-serif truncate text-2xl leading-none text-[var(--ink)] sm:text-3xl">{{ title }}</h1>
       </div>
 
-      <div class="flex items-center gap-2">
-        <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[var(--muted)]">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="order-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[var(--muted)] lg:order-none">
           <span>{{ dayjs().format('YYYY') }}</span>
           <span class="h-1 w-1 rounded-full bg-[var(--accent)]"></span>
           <span>{{ dayjs().format('M月D日') }}</span>
@@ -58,7 +58,7 @@ const subtitle = computed(() => {
           下一个
         </button>
 
-        <div class="flex rounded-full border border-[rgba(107,79,52,0.12)] bg-[rgba(255,249,240,0.76)] p-0.5 soft-ring">
+        <div class="order-1 flex rounded-full border border-[rgba(107,79,52,0.12)] bg-[rgba(255,249,240,0.76)] p-0.5 soft-ring lg:order-none">
           <button
             class="rounded-full px-3 py-1.5 text-xs font-medium transition"
             :class="calendarStore.viewMode === 'week' ? 'bg-[var(--ink)] text-[#fff8ef]' : 'text-[var(--muted)]'"
@@ -76,13 +76,13 @@ const subtitle = computed(() => {
         </div>
 
         <button
-          class="rounded-full bg-[var(--accent-deep)] px-4 py-2 text-xs font-medium text-[#fff6ef] shadow-[0_10px_24px_rgba(111,47,22,0.18)] transition hover:bg-[var(--accent)]"
+          class="hidden rounded-full bg-[var(--accent-deep)] px-4 py-2 text-xs font-medium text-[#fff6ef] shadow-[0_10px_24px_rgba(111,47,22,0.18)] transition hover:bg-[var(--accent)] lg:inline-flex"
           @click="calendarStore.openCreateDialog()"
         >
           添加日程
         </button>
         <button
-          class="rounded-full border border-[var(--accent-deep)] px-4 py-2 text-xs font-medium text-[var(--accent-deep)] transition hover:bg-[var(--accent-deep)] hover:text-[#fff6ef]"
+          class="hidden rounded-full border border-[var(--accent-deep)] px-4 py-2 text-xs font-medium text-[var(--accent-deep)] transition hover:bg-[var(--accent-deep)] hover:text-[#fff6ef] lg:inline-flex"
           @click="calendarStore.openBatchDialog()"
         >
           批量添加

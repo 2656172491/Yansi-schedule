@@ -13,6 +13,8 @@
   --accent-soft: rgba(176, 90, 43, 0.14);
   --accent-deep: #6f2f16;
   --olive: #6d7757;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   color: var(--ink);
   background: var(--bg);
   font-family: "Outfit", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -34,11 +36,38 @@ body,
 }
 
 body {
-  min-width: 1280px;
   background:
     radial-gradient(circle at top left, rgba(176, 90, 43, 0.18), transparent 24%),
     radial-gradient(circle at 85% 10%, rgba(109, 119, 87, 0.15), transparent 18%),
     linear-gradient(180deg, #f8f1e8 0%, #efe5d7 50%, #e6dac6 100%);
+}
+
+.app-shell {
+  padding-top: calc(0.75rem + var(--safe-top));
+  padding-bottom: calc(7rem + var(--safe-bottom));
+}
+
+.mobile-action-bar {
+  bottom: calc(1rem + var(--safe-bottom));
+}
+
+.bottom-sheet {
+  padding-bottom: calc(1.25rem + var(--safe-bottom));
+}
+
+@media (min-width: 1024px) {
+  body {
+    min-width: 1280px;
+  }
+
+  .app-shell {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .bottom-sheet {
+    padding-bottom: 1.75rem;
+  }
 }
 
 body::before {

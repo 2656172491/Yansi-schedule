@@ -32,6 +32,10 @@ const schedulesByDay = computed(() => {
   })
 })
 
+const selectedDay = computed(() => {
+  return schedulesByDay.value.find((item) => item.dateKey === calendarStore.selectedDate) || schedulesByDay.value[0]
+})
+
 function openDay(dateKey, event) {
   calendarStore.setSelectedDate(dateKey)
   const rect = event.currentTarget.getBoundingClientRect()
@@ -59,8 +63,8 @@ function selectDay(dateKey) {
 </script>
 
 <template>
-  <section class="paper-panel rounded-[36px] overflow-hidden">
-    <div class="grid grid-cols-[76px_repeat(7,minmax(0,1fr))] border-b border-[var(--line)] bg-[rgba(255,248,239,0.68)]">
+  <section class="paper-panel overflow-hidden rounded-[28px] lg:rounded-[36px]">
+    <div class="hidden grid-cols-[76px_repeat(7,minmax(0,1fr))] border-b border-[var(--line)] bg-[rgba(255,248,239,0.68)] lg:grid">
       <div class="border-r border-[var(--line)] px-3 py-3"></div>
       <button
         v-for="item in schedulesByDay"
@@ -84,7 +88,7 @@ function selectDay(dateKey) {
       </button>
     </div>
 
-    <div class="grid grid-cols-[76px_repeat(7,minmax(0,1fr))]">
+    <div class="hidden grid-cols-[76px_repeat(7,minmax(0,1fr))] lg:grid">
       <div class="border-r border-[var(--line)] bg-[rgba(255,248,239,0.62)]">
         <button
           v-if="collapsedEarlyHours"
@@ -166,6 +170,70 @@ function selectDay(dateKey) {
           <p class="mt-1 text-[11px] uppercase tracking-[0.18em] opacity-70">{{ event.startTime }} — {{ event.endTime }}</p>
           <p v-if="event.notes && !event.compact" class="mt-3 line-clamp-3 text-xs leading-6 opacity-70">{{ event.notes }}</p>
         </article>
+      </div>
+    </div>
+
+    <div class="lg:hidden">
+      <div class="hidden-scrollbar flex gap-2 overflow-x-auto border-b border-[var(--line)] bg-[rgba(255,248,239,0.68)] p-3">
+        <button
+          v-for="item in schedulesByDay"
+          :key="item.dateKey"
+          type="button"
+          class="min-w-[68px] rounded-[22px] border px-3 py-2 text-left transition"
+          :class="item.isSelected ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)]'"
+          @click="selectDay(item.dateKey)"
+        >
+          <p class="text-[10px] uppercase tracking-[0.16em] opacity-75">{{ item.day.format('ddd') }}</p>
+          <div class="mt-1 flex items-end justify-between gap-2">
+            <span class="display-serif text-2xl leading-none">{{ item.day.format('D') }}</span>
+            <span v-if="item.items.length" class="text-[10px] font-semibold">{{ item.items.length }}</span>
+          </div>
+          <p v-if="item.isToday" class="mt-1 text-[10px] opacity-80">今天</p>
+        </button>
+      </div>
+
+      <div class="space-y-3 p-4">
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.28em] text-[var(--accent-deep)]">day plan</p>
+            <h2 class="display-serif mt-1 text-3xl leading-none text-[var(--ink)]">{{ selectedDay.day.format('M月D日') }}</h2>
+          </div>
+          <button
+            type="button"
+            class="rounded-full border border-[var(--line)] bg-white/60 px-3 py-2 text-xs font-medium text-[var(--muted)]"
+            @click="calendarStore.openCreateDialog(selectedDay.dateKey)"
+          >
+            新建
+          </button>
+        </div>
+
+        <div v-if="selectedDay.items.length" class="space-y-2">
+          <article
+            v-for="event in selectedDay.items"
+            :key="event.id"
+            class="rounded-[22px] border px-4 py-3 shadow-[0_10px_24px_rgba(84,56,33,0.08)]"
+            :class="getEventColor(event.color)"
+            :style="getEventStyle(event.color)"
+            @click="calendarStore.openEditDialog(event.id)"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="truncate text-sm font-semibold">{{ event.title }}</p>
+                <p class="mt-1 text-[11px] uppercase tracking-[0.16em] opacity-70">{{ event.startTime }} — {{ event.endTime }}</p>
+              </div>
+              <span class="rounded-full bg-white/45 px-2 py-1 text-[10px] opacity-70">编辑</span>
+            </div>
+            <p v-if="event.notes" class="mt-2 line-clamp-2 text-xs leading-5 opacity-70">{{ event.notes }}</p>
+          </article>
+        </div>
+        <button
+          v-else
+          type="button"
+          class="w-full rounded-[24px] border border-dashed border-[var(--line)] bg-white/45 px-4 py-8 text-center text-sm text-[var(--muted)]"
+          @click="calendarStore.openCreateDialog(selectedDay.dateKey)"
+        >
+          这一天还没有安排，点这里添加
+        </button>
       </div>
     </div>
   </section>

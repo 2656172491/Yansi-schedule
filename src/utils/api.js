@@ -32,6 +32,15 @@ export async function createSchedule(payload) {
   return { ok: true }
 }
 
+export async function replaceSchedules(items) {
+  if (hasChromeStorage()) {
+    await chrome.storage.local.set({ [KEY]: items })
+  } else {
+    setLocalSchedules(items)
+  }
+  return { ok: true }
+}
+
 export async function updateSchedule(id, payload) {
   const items = await fetchSchedules()
   const index = items.findIndex((item) => item.id === id)

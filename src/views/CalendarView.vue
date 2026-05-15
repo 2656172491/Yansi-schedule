@@ -11,6 +11,7 @@ import { useScheduleStore } from '../stores/schedule'
 import { useTemplateStore } from '../stores/templates'
 import { usePaletteStore, paletteOptions, getColorHex } from '../stores/palette'
 import { getEventColor } from '../utils/calendar'
+import { replaceSchedules } from '../utils/api'
 
 const calendarStore = useCalendarStore()
 const scheduleStore = useScheduleStore()
@@ -97,7 +98,7 @@ async function importData(event) {
         throw new Error('数据字段不完整')
       }
     }
-    await chrome.storage.local.set({ schedules: data })
+    await replaceSchedules(data)
     await scheduleStore.load()
     event.target.value = ''
   } catch (err) {
@@ -107,28 +108,31 @@ async function importData(event) {
 </script>
 
 <template>
-  <main class="min-h-screen px-6 py-4 text-[var(--ink)]">
-    <div class="mx-auto max-w-[1460px] space-y-6">
+  <main class="app-shell min-h-screen px-3 text-[var(--ink)] sm:px-4 lg:px-6">
+    <div class="mx-auto max-w-[1460px] space-y-4 lg:space-y-6">
       <CalendarToolbar />
 
-      <section class="grid grid-cols-[320px_minmax(0,1fr)] items-start gap-6">
-        <aside class="space-y-4">
-          <div class="paper-panel rounded-[34px] p-4">
+      <section class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6">
+        <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
+
+        <aside class="space-y-4 lg:order-first">
+          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">today memo</p>
-            <h2 class="display-serif mt-3 text-4xl leading-none">{{ overview.today }} 条安排</h2>
-            <div class="mt-6 grid grid-cols-2 gap-3">
-              <div class="rounded-[26px] border border-[var(--line)] bg-white/55 p-4">
+            <h2 class="display-serif mt-3 text-3xl leading-none lg:text-4xl">{{ overview.today }} 条安排</h2>
+            <p class="mt-2 text-sm text-[var(--muted)]">{{ selectedDateLabel }}</p>
+            <div class="mt-4 grid grid-cols-2 gap-3 lg:mt-6">
+              <div class="rounded-[22px] border border-[var(--line)] bg-white/55 p-3 lg:rounded-[26px] lg:p-4">
                 <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">本月</p>
-                <p class="mt-3 text-3xl font-semibold">{{ overview.month }}</p>
+                <p class="mt-2 text-2xl font-semibold lg:mt-3 lg:text-3xl">{{ overview.month }}</p>
               </div>
-              <div class="rounded-[26px] border border-[var(--line)] bg-[var(--accent-soft)] p-4">
+              <div class="rounded-[22px] border border-[var(--line)] bg-[var(--accent-soft)] p-3 lg:rounded-[26px] lg:p-4">
                 <p class="text-xs uppercase tracking-[0.24em] text-[var(--accent-deep)]">全部</p>
-                <p class="mt-3 text-3xl font-semibold text-[var(--accent-deep)]">{{ overview.total }}</p>
+                <p class="mt-2 text-2xl font-semibold text-[var(--accent-deep)] lg:mt-3 lg:text-3xl">{{ overview.total }}</p>
               </div>
             </div>
           </div>
 
-          <div class="paper-panel rounded-[34px] p-4">
+          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">palette</p>
@@ -196,7 +200,7 @@ async function importData(event) {
             </div>
           </div>
 
-          <div class="paper-panel rounded-[34px] p-4">
+          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">templates</p>
@@ -255,7 +259,7 @@ async function importData(event) {
             </div>
           </div>
 
-          <div class="paper-panel rounded-[34px] p-4">
+          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">data</p>
             <h3 class="display-serif mt-2 text-2xl">数据管理</h3>
             <div class="mt-4 flex gap-3">
@@ -273,9 +277,24 @@ async function importData(event) {
             </div>
           </div>
         </aside>
-
-        <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
       </section>
+    </div>
+
+    <div class="mobile-action-bar fixed left-3 right-3 z-40 grid grid-cols-[1fr_auto] gap-2 lg:hidden">
+      <button
+        type="button"
+        class="rounded-full bg-[var(--accent-deep)] px-5 py-3 text-sm font-semibold text-[#fff6ef] shadow-[0_16px_34px_rgba(111,47,22,0.28)]"
+        @click="calendarStore.openCreateDialog()"
+      >
+        添加日程
+      </button>
+      <button
+        type="button"
+        class="rounded-full border border-[var(--accent-deep)] bg-[rgba(255,248,238,0.92)] px-4 py-3 text-sm font-semibold text-[var(--accent-deep)] shadow-[0_12px_26px_rgba(84,56,33,0.12)]"
+        @click="calendarStore.openBatchDialog()"
+      >
+        批量
+      </button>
     </div>
 
     <ScheduleDialog />

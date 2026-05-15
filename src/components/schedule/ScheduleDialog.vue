@@ -197,16 +197,16 @@ function handleDelete() {
   <Teleport to="body">
     <div
       v-if="calendarStore.dialogOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(36,25,15,0.28)] px-4 backdrop-blur-md"
+      class="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(36,25,15,0.28)] px-3 pb-0 pt-12 backdrop-blur-md sm:px-4 lg:items-center lg:p-4"
       @click.self="calendarStore.closeDialog()"
     >
-      <section class="paper-panel w-full max-w-2xl rounded-[36px] p-7">
+      <section class="paper-panel bottom-sheet max-h-[calc(100dvh-48px)] w-full max-w-2xl overflow-y-auto rounded-t-[30px] p-5 lg:max-h-[calc(100vh-80px)] lg:rounded-[36px] lg:p-7">
         <div class="flex items-start justify-between gap-4">
-          <div>
+          <div class="min-w-0">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">{{ editingItem ? '编辑日程' : '新建日程' }}</p>
-            <h2 class="display-serif mt-3 text-4xl leading-none text-[var(--ink)]">{{ editingItem ? form.title : '安排一段留给自己的时间' }}</h2>
+            <h2 class="display-serif mt-3 truncate text-3xl leading-none text-[var(--ink)] lg:text-4xl">{{ editingItem ? form.title : '安排一段留给自己的时间' }}</h2>
           </div>
-          <button class="rounded-full border border-[var(--line)] bg-white/50 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]" @click="calendarStore.closeDialog()">关闭</button>
+          <button class="shrink-0 rounded-full border border-[var(--line)] bg-white/50 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]" @click="calendarStore.closeDialog()">关闭</button>
         </div>
 
         <p v-if="errorMessage" class="mt-4 rounded-[20px] border border-[rgba(152,74,44,0.2)] bg-[rgba(176,90,43,0.1)] px-4 py-3 text-sm text-[var(--accent-deep)]">{{ errorMessage }}</p>
@@ -233,7 +233,7 @@ function handleDelete() {
             <input v-model="form.title" class="w-full rounded-[24px] border border-[var(--line)] px-4 py-3 outline-none transition focus:border-[var(--accent)] focus:bg-white" placeholder="例如：深度工作、健身、约会" />
           </div>
 
-          <div class="grid grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <!-- Date -->
             <div class="relative min-w-0">
               <label class="mb-2 block text-sm font-medium text-[var(--muted)]">日期</label>
@@ -255,7 +255,7 @@ function handleDelete() {
 
               <div
                 v-if="showDatePicker"
-                class="paper-panel !absolute left-0 top-full z-50 mt-2 w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                class="paper-panel !absolute left-0 top-full z-50 mt-2 w-[calc(100vw-48px)] max-w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
                 @click.stop
               >
                 <div class="flex items-center justify-between px-1 pb-3">
@@ -422,7 +422,7 @@ function handleDelete() {
             <textarea v-model="form.notes" rows="4" class="w-full rounded-[24px] border border-[var(--line)] px-4 py-3 outline-none transition focus:border-[var(--accent)] focus:bg-white" placeholder="写点提醒、目标或这段时间的情绪关键字"></textarea>
           </div>
 
-          <div class="flex items-center justify-between pt-2">
+          <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <button
               v-if="editingItem"
               type="button"
@@ -433,7 +433,7 @@ function handleDelete() {
             </button>
             <div v-else></div>
 
-            <div class="flex gap-3">
+            <div class="flex justify-end gap-3">
               <button type="button" class="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 text-sm font-medium text-[var(--muted)]" @click="calendarStore.closeDialog()">
                 取消
               </button>
