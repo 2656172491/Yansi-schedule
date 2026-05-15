@@ -59,10 +59,22 @@ npm run preview
 npm run tauri:dev
 ```
 
+启动 Tauri Android 开发模式：
+
+```bash
+npm run tauri:android:dev
+```
+
 构建 Windows 桌面安装包：
 
 ```bash
 npm run tauri:build
+```
+
+构建 Android 安装包：
+
+```bash
+npm run tauri:android:build
 ```
 
 调试构建可使用：
@@ -77,9 +89,11 @@ npx tauri build --debug
 src-tauri/target/debug/app.exe
 src-tauri/target/debug/bundle/msi/Yansi Schedule_0.1.0_x64_en-US.msi
 src-tauri/target/debug/bundle/nsis/Yansi Schedule_0.1.0_x64-setup.exe
+src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
+src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab
 ```
 
-Tauri 2 支持移动端封装，但 Android/iOS 需要额外配置移动端工具链（Android Studio、NDK/JDK、Rust 移动端 target 等）。当前仓库已验证 Windows 桌面端构建流程。
+Tauri 2 支持移动端封装。Android 需要 Android Studio、NDK/JDK 和 Rust Android target；当前仓库已配置 Android Gradle 工程，并保留 Windows 桌面端构建流程。
 
 ## 项目结构
 
