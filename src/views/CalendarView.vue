@@ -166,23 +166,39 @@ async function importData(event) {
 <template>
   <main class="app-shell min-h-screen px-3 text-[var(--ink)] sm:px-4 lg:px-6">
     <div class="mx-auto max-w-[1460px] space-y-4 lg:space-y-6">
-      <div class="relative">
-        <CalendarToolbar />
-        <button
-          type="button"
-          class="absolute right-0 top-0 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,248,238,0.88)] text-xl leading-none text-[var(--accent-deep)] shadow-[0_12px_28px_rgba(84,56,33,0.14)] backdrop-blur lg:hidden"
-          aria-label="打开管理设置"
-          @click="openMobileManagement()"
-        >
-          ⋯
-        </button>
-      </div>
+      <section class="paper-panel rounded-[26px] p-4 lg:hidden">
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">today memo</p>
+          <button
+            type="button"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,248,238,0.9)] text-xl leading-none text-[var(--accent-deep)] shadow-[0_10px_22px_rgba(84,56,33,0.14)]"
+            aria-label="打开管理设置"
+            @click="openMobileManagement()"
+          >
+            ⋯
+          </button>
+        </div>
+        <h2 class="display-serif mt-3 text-3xl leading-none">{{ overview.today }} 条安排</h2>
+        <p class="mt-2 text-sm text-[var(--muted)]">{{ selectedDateLabel }}</p>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-[22px] border border-[var(--line)] bg-white/55 p-3">
+            <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">本月</p>
+            <p class="mt-2 text-2xl font-semibold">{{ overview.month }}</p>
+          </div>
+          <div class="rounded-[22px] border border-[var(--line)] bg-[var(--accent-soft)] p-3">
+            <p class="text-xs uppercase tracking-[0.24em] text-[var(--accent-deep)]">全部</p>
+            <p class="mt-2 text-2xl font-semibold text-[var(--accent-deep)]">{{ overview.total }}</p>
+          </div>
+        </div>
+      </section>
+
+      <CalendarToolbar />
 
       <section class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6">
         <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
 
         <aside class="space-y-4 lg:order-first">
-          <div class="paper-panel rounded-[26px] p-4 lg:rounded-[34px]">
+          <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">today memo</p>
             <h2 class="display-serif mt-3 text-3xl leading-none lg:text-4xl">{{ overview.today }} 条安排</h2>
             <p class="mt-2 text-sm text-[var(--muted)]">{{ selectedDateLabel }}</p>
