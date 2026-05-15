@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, reactive } from 'vue'
+import { computed, onMounted, onUnmounted, ref, reactive, watch } from 'vue'
 import dayjs from 'dayjs'
 import CalendarToolbar from '../components/calendar/CalendarToolbar.vue'
 import WeekCalendar from '../components/calendar/WeekCalendar.vue'
@@ -48,6 +48,8 @@ const showPaletteForm = ref(false)
 const newPalette = reactive({ label: '', color: 'blue', hexInput: '' })
 const showMobileManagement = ref(false)
 const activeManagementPanel = ref('menu')
+let lockedScrollY = 0
+let isBodyScrollLocked = false
 
 const managementItems = computed(() => [
   { key: 'palette', title: '色签管理', desc: `${paletteStore.palettes.length} 个色签`, tone: 'palette' },
@@ -64,6 +66,42 @@ function closeMobileManagement() {
   showMobileManagement.value = false
   activeManagementPanel.value = 'menu'
 }
+
+function lockBodyScroll() {
+  if (isBodyScrollLocked) return
+  lockedScrollY = window.scrollY || document.documentElement.scrollTop || 0
+  document.body.style.position = 'fixed'
+  document.body.style.top = `-${lockedScrollY}px`
+  document.body.style.left = '0'
+  document.body.style.right = '0'
+  document.body.style.width = '100%'
+  document.body.style.overflow = 'hidden'
+  isBodyScrollLocked = true
+}
+
+function unlockBodyScroll() {
+  if (!isBodyScrollLocked) return
+  document.body.style.position = ''
+  document.body.style.top = ''
+  document.body.style.left = ''
+  document.body.style.right = ''
+  document.body.style.width = ''
+  document.body.style.overflow = ''
+  window.scrollTo(0, lockedScrollY)
+  isBodyScrollLocked = false
+}
+
+watch(showMobileManagement, (visible) => {
+  if (visible) {
+    lockBodyScroll()
+    return
+  }
+  unlockBodyScroll()
+})
+
+onUnmounted(() => {
+  unlockBodyScroll()
+})
 
 function addTemplate() {
   if (!newTpl.label.trim() || !newTpl.title.trim()) return
@@ -328,12 +366,12 @@ async function importData(event) {
     <div v-if="showMobileManagement" class="fixed inset-0 z-50 lg:hidden">
       <button
         type="button"
-        class="absolute inset-0 h-full w-full bg-[rgba(41,28,19,0.32)] backdrop-blur-[2px]"
+        class="mobile-management-backdrop absolute inset-0 h-full w-full"
         aria-label="关闭管理设置"
         @click="closeMobileManagement"
       ></button>
 
-      <section class="bottom-sheet absolute bottom-0 left-0 right-0 max-h-[84vh] overflow-y-auto rounded-t-[30px] border border-[var(--line)] bg-[var(--paper)] px-4 pt-3 shadow-[0_-22px_60px_rgba(41,28,19,0.22)]">
+      <section class="mobile-management-sheet bottom-sheet absolute bottom-0 left-0 right-0 max-h-[84vh] overflow-y-auto rounded-t-[30px] px-4 pt-3">
         <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[rgba(111,47,22,0.2)]"></div>
 
         <div class="mb-4 flex items-center justify-between gap-3">

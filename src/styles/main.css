@@ -55,6 +55,21 @@ body {
   padding-bottom: calc(1.25rem + var(--safe-bottom));
 }
 
+.mobile-management-backdrop {
+  background: rgba(41, 28, 19, 0.52);
+  backdrop-filter: blur(4px);
+}
+
+.mobile-management-sheet {
+  border: 1px solid rgba(111, 47, 22, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.99) 0%, rgba(239, 226, 208, 0.98) 100%),
+    var(--paper);
+  box-shadow:
+    0 -24px 70px rgba(41, 28, 19, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
 @media (min-width: 1024px) {
   body {
     min-width: 1280px;
