@@ -340,7 +340,7 @@ function handleClose() {
 
         <div
           v-if="activePickerType() === 'date' && activePickerRow()"
-          class="paper-panel absolute z-[60] w-[280px] max-w-[calc(100%_-_24px)] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+          class="paper-panel !absolute z-[60] w-[280px] max-w-[calc(100%_-_24px)] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
           :data-batch-picker="activePicker"
           :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
           @click.stop
@@ -376,7 +376,7 @@ function handleClose() {
 
         <div
           v-if="activePickerType() === 'start' && activePickerRow()"
-          class="paper-panel absolute z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+          class="paper-panel !absolute z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
           :data-batch-picker="activePicker"
           :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
           @click.stop
@@ -418,7 +418,7 @@ function handleClose() {
 
         <div
           v-if="activePickerType() === 'end' && activePickerRow()"
-          class="paper-panel absolute z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+          class="paper-panel !absolute z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
           :data-batch-picker="activePicker"
           :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
           @click.stop
