@@ -262,41 +262,43 @@ function handleClose() {
                   </svg>
                 </div>
 
-                <div
-                  v-if="isPickerOpen(index, 'date')"
-                  class="paper-panel fixed z-50 w-[calc(100vw-48px)] max-w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
-                  :data-batch-picker="pickerKey(index, 'date')"
-                  :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
-                  @click.stop
-                >
-                  <div class="flex items-center justify-between px-1 pb-3">
-                    <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="prevMonth">
-                      <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </button>
-                    <span class="text-sm font-medium text-[var(--ink)]">{{ pickerMonth.format('YYYY年M月') }}</span>
-                    <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="nextMonth">
-                      <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
+                <Teleport to="body">
+                  <div
+                    v-if="isPickerOpen(index, 'date')"
+                    class="paper-panel fixed z-[60] w-[calc(100vw-48px)] max-w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                    :data-batch-picker="pickerKey(index, 'date')"
+                    :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
+                    @click.stop
+                  >
+                    <div class="flex items-center justify-between px-1 pb-3">
+                      <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="prevMonth">
+                        <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                      </button>
+                      <span class="text-sm font-medium text-[var(--ink)]">{{ pickerMonth.format('YYYY年M月') }}</span>
+                      <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="nextMonth">
+                        <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center">
+                      <div v-for="h in weekHeaders" :key="h" class="py-1 text-[11px] font-medium uppercase tracking-wider text-[var(--muted)]">{{ h }}</div>
+                      <button
+                        v-for="d in pickerDays(row)"
+                        :key="d.date"
+                        type="button"
+                        class="rounded-xl py-1.5 text-sm transition"
+                        :class="{
+                          'bg-[var(--accent-deep)] text-white font-medium shadow-sm': d.isSelected,
+                          'text-[var(--ink)] hover:bg-[var(--accent-soft)]': d.isCurrentMonth && !d.isSelected,
+                          'text-[var(--muted)] opacity-40 hover:bg-[var(--accent-soft)]/40': !d.isCurrentMonth && !d.isSelected,
+                          'ring-1 ring-[var(--accent-deep)] ring-offset-1 ring-offset-white/60': d.isToday && !d.isSelected,
+                        }"
+                        @click="selectDate(row, d.date)"
+                      >
+                        {{ d.day }}
+                      </button>
+                    </div>
                   </div>
-                  <div class="grid grid-cols-7 gap-1 text-center">
-                    <div v-for="h in weekHeaders" :key="h" class="py-1 text-[11px] font-medium uppercase tracking-wider text-[var(--muted)]">{{ h }}</div>
-                    <button
-                      v-for="d in pickerDays(row)"
-                      :key="d.date"
-                      type="button"
-                      class="rounded-xl py-1.5 text-sm transition"
-                      :class="{
-                        'bg-[var(--accent-deep)] text-white font-medium shadow-sm': d.isSelected,
-                        'text-[var(--ink)] hover:bg-[var(--accent-soft)]': d.isCurrentMonth && !d.isSelected,
-                        'text-[var(--muted)] opacity-40 hover:bg-[var(--accent-soft)]/40': !d.isCurrentMonth && !d.isSelected,
-                        'ring-1 ring-[var(--accent-deep)] ring-offset-1 ring-offset-white/60': d.isToday && !d.isSelected,
-                      }"
-                      @click="selectDate(row, d.date)"
-                    >
-                      {{ d.day }}
-                    </button>
-                  </div>
-                </div>
+                </Teleport>
               </div>
               <div class="relative">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">开始</label>
@@ -312,47 +314,49 @@ function handleClose() {
                   </svg>
                 </div>
 
-                <div
-                  v-if="isPickerOpen(index, 'start')"
-                  class="paper-panel fixed z-50 w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
-                  :data-batch-picker="pickerKey(index, 'start')"
-                  :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
-                  @click.stop
-                >
-                  <div class="flex h-[240px] gap-2">
-                    <div class="flex-1 overflow-y-auto">
-                      <div class="space-y-1 pr-1">
-                        <button
-                          v-for="h in hours"
-                          :key="h"
-                          type="button"
-                          class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                          :class="row.startTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                          :data-active="row.startTime?.startsWith(h + ':') || undefined"
-                          @click="selectHour(row, 'startTime', h)"
-                        >
-                          {{ h }}
-                        </button>
+                <Teleport to="body">
+                  <div
+                    v-if="isPickerOpen(index, 'start')"
+                    class="paper-panel fixed z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                    :data-batch-picker="pickerKey(index, 'start')"
+                    :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
+                    @click.stop
+                  >
+                    <div class="flex h-[240px] gap-2">
+                      <div class="flex-1 overflow-y-auto">
+                        <div class="space-y-1 pr-1">
+                          <button
+                            v-for="h in hours"
+                            :key="h"
+                            type="button"
+                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                            :class="row.startTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                            :data-active="row.startTime?.startsWith(h + ':') || undefined"
+                            @click="selectHour(row, 'startTime', h)"
+                          >
+                            {{ h }}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div class="w-px bg-[var(--line)]"></div>
-                    <div class="flex-1 overflow-y-auto">
-                      <div class="space-y-1 pr-1">
-                        <button
-                          v-for="m in minutes"
-                          :key="m"
-                          type="button"
-                          class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                          :class="row.startTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                          :data-active="row.startTime?.endsWith(':' + m) || undefined"
-                          @click="selectMinute(row, 'startTime', m)"
-                        >
-                          {{ m }}
-                        </button>
+                      <div class="w-px bg-[var(--line)]"></div>
+                      <div class="flex-1 overflow-y-auto">
+                        <div class="space-y-1 pr-1">
+                          <button
+                            v-for="m in minutes"
+                            :key="m"
+                            type="button"
+                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                            :class="row.startTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                            :data-active="row.startTime?.endsWith(':' + m) || undefined"
+                            @click="selectMinute(row, 'startTime', m)"
+                          >
+                            {{ m }}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Teleport>
               </div>
               <div class="relative">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">结束</label>
@@ -368,47 +372,49 @@ function handleClose() {
                   </svg>
                 </div>
 
-                <div
-                  v-if="isPickerOpen(index, 'end')"
-                  class="paper-panel fixed z-50 w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
-                  :data-batch-picker="pickerKey(index, 'end')"
-                  :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
-                  @click.stop
-                >
-                  <div class="flex h-[240px] gap-2">
-                    <div class="flex-1 overflow-y-auto">
-                      <div class="space-y-1 pr-1">
-                        <button
-                          v-for="h in hours"
-                          :key="h"
-                          type="button"
-                          class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                          :class="row.endTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                          :data-active="row.endTime?.startsWith(h + ':') || undefined"
-                          @click="selectHour(row, 'endTime', h)"
-                        >
-                          {{ h }}
-                        </button>
+                <Teleport to="body">
+                  <div
+                    v-if="isPickerOpen(index, 'end')"
+                    class="paper-panel fixed z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                    :data-batch-picker="pickerKey(index, 'end')"
+                    :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
+                    @click.stop
+                  >
+                    <div class="flex h-[240px] gap-2">
+                      <div class="flex-1 overflow-y-auto">
+                        <div class="space-y-1 pr-1">
+                          <button
+                            v-for="h in hours"
+                            :key="h"
+                            type="button"
+                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                            :class="row.endTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                            :data-active="row.endTime?.startsWith(h + ':') || undefined"
+                            @click="selectHour(row, 'endTime', h)"
+                          >
+                            {{ h }}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div class="w-px bg-[var(--line)]"></div>
-                    <div class="flex-1 overflow-y-auto">
-                      <div class="space-y-1 pr-1">
-                        <button
-                          v-for="m in minutes"
-                          :key="m"
-                          type="button"
-                          class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                          :class="row.endTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                          :data-active="row.endTime?.endsWith(':' + m) || undefined"
-                          @click="selectMinute(row, 'endTime', m)"
-                        >
-                          {{ m }}
-                        </button>
+                      <div class="w-px bg-[var(--line)]"></div>
+                      <div class="flex-1 overflow-y-auto">
+                        <div class="space-y-1 pr-1">
+                          <button
+                            v-for="m in minutes"
+                            :key="m"
+                            type="button"
+                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                            :class="row.endTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                            :data-active="row.endTime?.endsWith(':' + m) || undefined"
+                            @click="selectMinute(row, 'endTime', m)"
+                          >
+                            {{ m }}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Teleport>
               </div>
               <button
                 type="button"
