@@ -19,6 +19,7 @@ const sharedColor = ref('blue')
 const errorMessage = ref('')
 const successCount = ref(0)
 const activePicker = ref(null)
+const dialogPanel = ref(null)
 const pickerPosition = reactive({ left: 0, top: 0 })
 const pickerMonth = ref(dayjs().startOf('month'))
 const weekHeaders = ['一', '二', '三', '四', '五', '六', '日']
@@ -58,6 +59,22 @@ function pickerKey(index, type) {
 
 function isPickerOpen(index, type) {
   return activePicker.value === pickerKey(index, type)
+}
+
+function activePickerParts() {
+  if (!activePicker.value) return null
+  const [index, type] = activePicker.value.split('-')
+  return { index: Number(index), type }
+}
+
+function activePickerType() {
+  return activePickerParts()?.type
+}
+
+function activePickerRow() {
+  const parts = activePickerParts()
+  if (!parts) return null
+  return rows[parts.index] || null
 }
 
 function displayDate(date) {
@@ -101,19 +118,21 @@ function scrollToActive(index, type) {
 
 function updatePickerPosition(event, type) {
   const target = event?.currentTarget
-  if (!target) return
+  const panel = dialogPanel.value
+  if (!target || !panel) return
 
   const rect = target.getBoundingClientRect()
+  const panelRect = panel.getBoundingClientRect()
   const width = type === 'date' ? 280 : 200
   const height = type === 'date' ? 330 : 270
   const gap = 8
   const margin = 12
-  const maxLeft = window.innerWidth - width - margin
-  const belowTop = rect.bottom + gap
-  const aboveTop = rect.top - height - gap
+  const maxLeft = panelRect.width - width - margin
+  const belowTop = rect.bottom - panelRect.top + gap
+  const aboveTop = rect.top - panelRect.top - height - gap
 
-  pickerPosition.left = Math.max(margin, Math.min(rect.left, maxLeft))
-  pickerPosition.top = belowTop + height <= window.innerHeight - margin
+  pickerPosition.left = Math.max(margin, Math.min(rect.left - panelRect.left, maxLeft))
+  pickerPosition.top = belowTop + height <= panelRect.height - margin
     ? belowTop
     : Math.max(margin, aboveTop)
 }
@@ -203,7 +222,7 @@ function handleClose() {
       class="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(36,25,15,0.28)] px-3 pb-0 pt-12 backdrop-blur-md sm:px-4 lg:items-center lg:p-4"
       @click.self="handleClose()"
     >
-      <section class="paper-panel bottom-sheet flex max-h-[calc(100dvh-48px)] w-full max-w-3xl flex-col rounded-t-[30px] p-5 lg:rounded-[36px] lg:p-7" style="max-height: calc(100vh - 80px);">
+      <section ref="dialogPanel" class="paper-panel bottom-sheet flex max-h-[calc(100dvh-48px)] w-full max-w-3xl flex-col rounded-t-[30px] p-5 lg:rounded-[36px] lg:p-7" style="max-height: calc(100vh - 80px);">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">批量添加</p>
@@ -221,7 +240,7 @@ function handleClose() {
           {{ errorMessage }}
         </p>
 
-        <div class="mt-5 overflow-y-auto pr-1">
+        <div class="mt-5 overflow-y-auto pr-1" @scroll="activePicker = null">
           <div class="space-y-3">
             <div
               v-for="(row, index) in rows"
@@ -262,43 +281,6 @@ function handleClose() {
                   </svg>
                 </div>
 
-                <Teleport to="body">
-                  <div
-                    v-if="isPickerOpen(index, 'date')"
-                    class="paper-panel fixed z-[60] w-[calc(100vw-48px)] max-w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
-                    :data-batch-picker="pickerKey(index, 'date')"
-                    :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
-                    @click.stop
-                  >
-                    <div class="flex items-center justify-between px-1 pb-3">
-                      <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="prevMonth">
-                        <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                      </button>
-                      <span class="text-sm font-medium text-[var(--ink)]">{{ pickerMonth.format('YYYY年M月') }}</span>
-                      <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="nextMonth">
-                        <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                      </button>
-                    </div>
-                    <div class="grid grid-cols-7 gap-1 text-center">
-                      <div v-for="h in weekHeaders" :key="h" class="py-1 text-[11px] font-medium uppercase tracking-wider text-[var(--muted)]">{{ h }}</div>
-                      <button
-                        v-for="d in pickerDays(row)"
-                        :key="d.date"
-                        type="button"
-                        class="rounded-xl py-1.5 text-sm transition"
-                        :class="{
-                          'bg-[var(--accent-deep)] text-white font-medium shadow-sm': d.isSelected,
-                          'text-[var(--ink)] hover:bg-[var(--accent-soft)]': d.isCurrentMonth && !d.isSelected,
-                          'text-[var(--muted)] opacity-40 hover:bg-[var(--accent-soft)]/40': !d.isCurrentMonth && !d.isSelected,
-                          'ring-1 ring-[var(--accent-deep)] ring-offset-1 ring-offset-white/60': d.isToday && !d.isSelected,
-                        }"
-                        @click="selectDate(row, d.date)"
-                      >
-                        {{ d.day }}
-                      </button>
-                    </div>
-                  </div>
-                </Teleport>
               </div>
               <div class="relative">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">开始</label>
@@ -314,49 +296,6 @@ function handleClose() {
                   </svg>
                 </div>
 
-                <Teleport to="body">
-                  <div
-                    v-if="isPickerOpen(index, 'start')"
-                    class="paper-panel fixed z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
-                    :data-batch-picker="pickerKey(index, 'start')"
-                    :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
-                    @click.stop
-                  >
-                    <div class="flex h-[240px] gap-2">
-                      <div class="flex-1 overflow-y-auto">
-                        <div class="space-y-1 pr-1">
-                          <button
-                            v-for="h in hours"
-                            :key="h"
-                            type="button"
-                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                            :class="row.startTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                            :data-active="row.startTime?.startsWith(h + ':') || undefined"
-                            @click="selectHour(row, 'startTime', h)"
-                          >
-                            {{ h }}
-                          </button>
-                        </div>
-                      </div>
-                      <div class="w-px bg-[var(--line)]"></div>
-                      <div class="flex-1 overflow-y-auto">
-                        <div class="space-y-1 pr-1">
-                          <button
-                            v-for="m in minutes"
-                            :key="m"
-                            type="button"
-                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                            :class="row.startTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                            :data-active="row.startTime?.endsWith(':' + m) || undefined"
-                            @click="selectMinute(row, 'startTime', m)"
-                          >
-                            {{ m }}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Teleport>
               </div>
               <div class="relative">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">结束</label>
@@ -372,49 +311,6 @@ function handleClose() {
                   </svg>
                 </div>
 
-                <Teleport to="body">
-                  <div
-                    v-if="isPickerOpen(index, 'end')"
-                    class="paper-panel fixed z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
-                    :data-batch-picker="pickerKey(index, 'end')"
-                    :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
-                    @click.stop
-                  >
-                    <div class="flex h-[240px] gap-2">
-                      <div class="flex-1 overflow-y-auto">
-                        <div class="space-y-1 pr-1">
-                          <button
-                            v-for="h in hours"
-                            :key="h"
-                            type="button"
-                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                            :class="row.endTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                            :data-active="row.endTime?.startsWith(h + ':') || undefined"
-                            @click="selectHour(row, 'endTime', h)"
-                          >
-                            {{ h }}
-                          </button>
-                        </div>
-                      </div>
-                      <div class="w-px bg-[var(--line)]"></div>
-                      <div class="flex-1 overflow-y-auto">
-                        <div class="space-y-1 pr-1">
-                          <button
-                            v-for="m in minutes"
-                            :key="m"
-                            type="button"
-                            class="w-full rounded-xl py-1.5 text-center text-sm transition"
-                            :class="row.endTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
-                            :data-active="row.endTime?.endsWith(':' + m) || undefined"
-                            @click="selectMinute(row, 'endTime', m)"
-                          >
-                            {{ m }}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Teleport>
               </div>
               <button
                 type="button"
@@ -440,6 +336,126 @@ function handleClose() {
             </svg>
             添加一行
           </button>
+        </div>
+
+        <div
+          v-if="activePickerType() === 'date' && activePickerRow()"
+          class="paper-panel absolute z-[60] w-[280px] max-w-[calc(100%_-_24px)] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+          :data-batch-picker="activePicker"
+          :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
+          @click.stop
+        >
+          <div class="flex items-center justify-between px-1 pb-3">
+            <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="prevMonth">
+              <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span class="text-sm font-medium text-[var(--ink)]">{{ pickerMonth.format('YYYY年M月') }}</span>
+            <button type="button" class="rounded-full p-1 transition hover:bg-[var(--accent-soft)]" @click="nextMonth">
+              <svg class="h-4 w-4 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-center">
+            <div v-for="h in weekHeaders" :key="h" class="py-1 text-[11px] font-medium uppercase tracking-wider text-[var(--muted)]">{{ h }}</div>
+            <button
+              v-for="d in pickerDays(activePickerRow())"
+              :key="d.date"
+              type="button"
+              class="rounded-xl py-1.5 text-sm transition"
+              :class="{
+                'bg-[var(--accent-deep)] text-white font-medium shadow-sm': d.isSelected,
+                'text-[var(--ink)] hover:bg-[var(--accent-soft)]': d.isCurrentMonth && !d.isSelected,
+                'text-[var(--muted)] opacity-40 hover:bg-[var(--accent-soft)]/40': !d.isCurrentMonth && !d.isSelected,
+                'ring-1 ring-[var(--accent-deep)] ring-offset-1 ring-offset-white/60': d.isToday && !d.isSelected,
+              }"
+              @click="selectDate(activePickerRow(), d.date)"
+            >
+              {{ d.day }}
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="activePickerType() === 'start' && activePickerRow()"
+          class="paper-panel absolute z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+          :data-batch-picker="activePicker"
+          :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
+          @click.stop
+        >
+          <div class="flex h-[240px] gap-2">
+            <div class="flex-1 overflow-y-auto">
+              <div class="space-y-1 pr-1">
+                <button
+                  v-for="h in hours"
+                  :key="h"
+                  type="button"
+                  class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                  :class="activePickerRow().startTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                  :data-active="activePickerRow().startTime?.startsWith(h + ':') || undefined"
+                  @click="selectHour(activePickerRow(), 'startTime', h)"
+                >
+                  {{ h }}
+                </button>
+              </div>
+            </div>
+            <div class="w-px bg-[var(--line)]"></div>
+            <div class="flex-1 overflow-y-auto">
+              <div class="space-y-1 pr-1">
+                <button
+                  v-for="m in minutes"
+                  :key="m"
+                  type="button"
+                  class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                  :class="activePickerRow().startTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                  :data-active="activePickerRow().startTime?.endsWith(':' + m) || undefined"
+                  @click="selectMinute(activePickerRow(), 'startTime', m)"
+                >
+                  {{ m }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="activePickerType() === 'end' && activePickerRow()"
+          class="paper-panel absolute z-[60] w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+          :data-batch-picker="activePicker"
+          :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
+          @click.stop
+        >
+          <div class="flex h-[240px] gap-2">
+            <div class="flex-1 overflow-y-auto">
+              <div class="space-y-1 pr-1">
+                <button
+                  v-for="h in hours"
+                  :key="h"
+                  type="button"
+                  class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                  :class="activePickerRow().endTime?.startsWith(h + ':') ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                  :data-active="activePickerRow().endTime?.startsWith(h + ':') || undefined"
+                  @click="selectHour(activePickerRow(), 'endTime', h)"
+                >
+                  {{ h }}
+                </button>
+              </div>
+            </div>
+            <div class="w-px bg-[var(--line)]"></div>
+            <div class="flex-1 overflow-y-auto">
+              <div class="space-y-1 pr-1">
+                <button
+                  v-for="m in minutes"
+                  :key="m"
+                  type="button"
+                  class="w-full rounded-xl py-1.5 text-center text-sm transition"
+                  :class="activePickerRow().endTime?.endsWith(':' + m) ? 'bg-[var(--accent-deep)] text-white font-medium shadow-sm' : 'text-[var(--ink)] hover:bg-[var(--accent-soft)]'"
+                  :data-active="activePickerRow().endTime?.endsWith(':' + m) || undefined"
+                  @click="selectMinute(activePickerRow(), 'endTime', m)"
+                >
+                  {{ m }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="mt-5">
