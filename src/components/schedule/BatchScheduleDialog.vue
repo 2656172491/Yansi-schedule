@@ -29,6 +29,7 @@ const minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '
 function createRow() {
   return {
     title: '',
+    notes: '',
     date: calendarStore.selectedDate,
     startTime: '09:00',
     endTime: '10:00',
@@ -192,7 +193,7 @@ async function handleSubmit() {
       startTime: row.startTime,
       endTime: row.endTime,
       color: sharedColor.value,
-      notes: '',
+      notes: row.notes.trim(),
     }
 
     const result = await scheduleStore.addSchedule(payload)
@@ -222,7 +223,7 @@ function handleClose() {
       class="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(36,25,15,0.28)] px-3 pb-0 pt-12 backdrop-blur-md sm:px-4 lg:items-center lg:p-4"
       @click.self="handleClose()"
     >
-      <section ref="dialogPanel" class="paper-panel bottom-sheet flex max-h-[calc(100dvh-48px)] w-full max-w-3xl flex-col rounded-t-[30px] p-5 lg:rounded-[36px] lg:p-7" style="max-height: calc(100vh - 80px);">
+      <section ref="dialogPanel" class="paper-panel bottom-sheet flex max-h-[calc(100dvh-48px)] w-full max-w-4xl flex-col rounded-t-[30px] p-5 lg:rounded-[36px] lg:p-7" style="max-height: calc(100vh - 80px);">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">批量添加</p>
@@ -245,9 +246,9 @@ function handleClose() {
             <div
               v-for="(row, index) in rows"
               :key="index"
-              class="grid grid-cols-[1fr_40px] gap-3 rounded-[24px] border border-[var(--line)] bg-white/35 p-3 lg:grid-cols-[1fr_140px_100px_100px_40px] lg:items-end lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0"
+              class="grid grid-cols-[minmax(0,1fr)_40px] gap-3 rounded-[24px] border border-[var(--line)] bg-white/35 p-3 lg:grid-cols-[minmax(112px,0.7fr)_minmax(160px,1fr)_158px_104px_104px_40px] lg:items-end lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0"
             >
-              <div class="col-span-1 lg:col-span-1">
+              <div class="min-w-0">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">标题</label>
                 <input
                   v-model="row.title"
@@ -265,6 +266,14 @@ function handleClose() {
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
+              <div class="col-span-2 min-w-0 lg:col-span-1">
+                <label class="mb-1 block text-xs font-medium text-[var(--muted)]">备注</label>
+                <input
+                  v-model="row.notes"
+                  class="w-full rounded-[20px] border border-[var(--line)] px-3 py-2 text-sm outline-none transition focus:border-[var(--accent)] focus:bg-white"
+                  placeholder="可选"
+                />
+              </div>
               <div class="relative col-span-2 lg:col-span-1">
                 <label class="mb-1 block text-xs font-medium text-[var(--muted)]">日期</label>
                 <div
@@ -272,7 +281,7 @@ function handleClose() {
                   :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'date') }"
                   @click.stop="openPicker(index, 'date', row, $event)"
                 >
-                  <span class="truncate" :class="row.date ? 'text-[var(--ink)]' : 'text-[var(--muted)]'">{{ displayDate(row.date) || '选择日期' }}</span>
+                  <span class="whitespace-nowrap" :class="row.date ? 'text-[var(--ink)]' : 'text-[var(--muted)]'">{{ displayDate(row.date) || '选择日期' }}</span>
                   <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
