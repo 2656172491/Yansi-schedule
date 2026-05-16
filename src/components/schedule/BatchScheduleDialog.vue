@@ -19,6 +19,7 @@ const sharedColor = ref('blue')
 const errorMessage = ref('')
 const successCount = ref(0)
 const activePicker = ref(null)
+const pickerPosition = reactive({ left: 0, top: 0 })
 const pickerMonth = ref(dayjs().startOf('month'))
 const weekHeaders = ['一', '二', '三', '四', '五', '六', '日']
 const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
@@ -98,7 +99,26 @@ function scrollToActive(index, type) {
   })
 }
 
-function openPicker(index, type, row) {
+function updatePickerPosition(event, type) {
+  const target = event?.currentTarget
+  if (!target) return
+
+  const rect = target.getBoundingClientRect()
+  const width = type === 'date' ? 280 : 200
+  const height = type === 'date' ? 330 : 270
+  const gap = 8
+  const margin = 12
+  const maxLeft = window.innerWidth - width - margin
+  const belowTop = rect.bottom + gap
+  const aboveTop = rect.top - height - gap
+
+  pickerPosition.left = Math.max(margin, Math.min(rect.left, maxLeft))
+  pickerPosition.top = belowTop + height <= window.innerHeight - margin
+    ? belowTop
+    : Math.max(margin, aboveTop)
+}
+
+function openPicker(index, type, row, event) {
   const key = pickerKey(index, type)
   if (activePicker.value === key) {
     activePicker.value = null
@@ -106,6 +126,7 @@ function openPicker(index, type, row) {
   }
 
   activePicker.value = key
+  updatePickerPosition(event, type)
   if (type === 'date' && row.date) {
     pickerMonth.value = dayjs(row.date).startOf('month')
   }
@@ -230,7 +251,7 @@ function handleClose() {
                 <div
                   class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
                   :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'date') }"
-                  @click.stop="openPicker(index, 'date', row)"
+                  @click.stop="openPicker(index, 'date', row, $event)"
                 >
                   <span class="truncate" :class="row.date ? 'text-[var(--ink)]' : 'text-[var(--muted)]'">{{ displayDate(row.date) || '选择日期' }}</span>
                   <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -243,8 +264,9 @@ function handleClose() {
 
                 <div
                   v-if="isPickerOpen(index, 'date')"
-                  class="paper-panel !absolute left-0 top-full z-50 mt-2 w-[calc(100vw-48px)] max-w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                  class="paper-panel fixed z-50 w-[calc(100vw-48px)] max-w-[280px] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
                   :data-batch-picker="pickerKey(index, 'date')"
+                  :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
                   @click.stop
                 >
                   <div class="flex items-center justify-between px-1 pb-3">
@@ -281,7 +303,7 @@ function handleClose() {
                 <div
                   class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
                   :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'start') }"
-                  @click.stop="openPicker(index, 'start', row)"
+                  @click.stop="openPicker(index, 'start', row, $event)"
                 >
                   <span class="text-[var(--ink)]">{{ row.startTime }}</span>
                   <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -292,8 +314,9 @@ function handleClose() {
 
                 <div
                   v-if="isPickerOpen(index, 'start')"
-                  class="paper-panel !absolute left-0 top-full z-50 mt-2 w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                  class="paper-panel fixed z-50 w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
                   :data-batch-picker="pickerKey(index, 'start')"
+                  :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
                   @click.stop
                 >
                   <div class="flex h-[240px] gap-2">
@@ -336,7 +359,7 @@ function handleClose() {
                 <div
                   class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
                   :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'end') }"
-                  @click.stop="openPicker(index, 'end', row)"
+                  @click.stop="openPicker(index, 'end', row, $event)"
                 >
                   <span class="text-[var(--ink)]">{{ row.endTime }}</span>
                   <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -347,8 +370,9 @@ function handleClose() {
 
                 <div
                   v-if="isPickerOpen(index, 'end')"
-                  class="paper-panel !absolute left-0 top-full z-50 mt-2 w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
+                  class="paper-panel fixed z-50 w-[200px] rounded-[24px] p-3 shadow-[0_20px_60px_rgba(36,25,15,0.18)]"
                   :data-batch-picker="pickerKey(index, 'end')"
+                  :style="{ left: `${pickerPosition.left}px`, top: `${pickerPosition.top}px` }"
                   @click.stop
                 >
                   <div class="flex h-[240px] gap-2">
