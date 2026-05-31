@@ -33,3 +33,4 @@ dist-ssr
 /ppt/
 /docs/
 /.codex/
+.env
