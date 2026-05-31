@@ -41,8 +41,8 @@ const subtitle = computed(() => {
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <div class="order-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[var(--muted)] lg:order-none">
+      <div class="flex flex-wrap items-center gap-2 lg:gap-3">
+        <div class="order-2 hidden items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[var(--muted)] lg:order-none lg:flex">
           <span>{{ dayjs().format('YYYY') }}</span>
           <span class="h-1 w-1 rounded-full bg-[var(--accent)]"></span>
           <span>{{ dayjs().format('M月D日') }}</span>
@@ -54,33 +54,36 @@ const subtitle = computed(() => {
         >
           今天
         </button>
-        <button
-          class="rounded-full border border-[var(--line)] bg-white/60 px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
-          @click="calendarStore.movePeriod(-1)"
-        >
-          上一个
-        </button>
-        <button
-          class="rounded-full border border-[var(--line)] bg-white/60 px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
-          @click="calendarStore.movePeriod(1)"
-        >
-          下一个
-        </button>
 
-        <div class="order-1 flex rounded-full border border-[rgba(107,79,52,0.12)] bg-[rgba(255,249,240,0.76)] p-0.5 soft-ring lg:order-none">
+        <div class="order-1 flex items-center gap-1 rounded-full border border-[rgba(107,79,52,0.12)] bg-[rgba(255,249,240,0.76)] p-0.5 soft-ring lg:order-none">
           <button
-            class="rounded-full px-3 py-1.5 text-xs font-medium transition"
+            class="rounded-full px-2.5 py-1.5 text-xs font-medium transition lg:px-3"
             :class="calendarStore.viewMode === 'week' ? 'bg-[var(--ink)] text-[#fff8ef]' : 'text-[var(--muted)]'"
             @click="calendarStore.setViewMode('week')"
           >
-            周视图
+            周
           </button>
           <button
-            class="rounded-full px-3 py-1.5 text-xs font-medium transition"
+            class="rounded-full px-2.5 py-1.5 text-xs font-medium transition lg:px-3"
             :class="calendarStore.viewMode === 'month' ? 'bg-[var(--ink)] text-[#fff8ef]' : 'text-[var(--muted)]'"
             @click="calendarStore.setViewMode('month')"
           >
-            月视图
+            月
+          </button>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button
+            class="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] bg-white/60 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
+            @click="calendarStore.movePeriod(-1)"
+          >
+            ‹
+          </button>
+          <button
+            class="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] bg-white/60 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
+            @click="calendarStore.movePeriod(1)"
+          >
+            ›
           </button>
         </div>
 

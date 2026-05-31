@@ -61,7 +61,16 @@ function selectDay(dateKey) {
       >
         <div class="shrink-0">
           <div class="flex items-center justify-between gap-2">
-            <span class="daily-number text-xl font-semibold leading-none lg:text-2xl">{{ item.day.format('D') }}</span>
+            <div class="flex flex-col items-start">
+              <span
+                class="daily-number text-xl font-semibold leading-none lg:text-2xl"
+                :class="item.isToday ? 'text-[var(--accent-deep)]' : ''"
+              >{{ item.day.format('D') }}</span>
+              <span
+                v-if="item.isToday"
+                class="mt-0.5 block h-1 w-1 rounded-full bg-[var(--accent)] lg:hidden"
+              ></span>
+            </div>
             <span
               v-if="item.isToday"
               class="hidden rounded-full border border-[rgba(111,47,22,0.18)] bg-[rgba(176,90,43,0.12)] px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--accent-deep)] lg:inline"
@@ -73,11 +82,11 @@ function selectDay(dateKey) {
           <p class="mt-1 hidden text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] lg:block">{{ item.day.format('MMM') }}</p>
         </div>
 
-        <div class="mt-auto flex flex-wrap gap-0.5 pt-1 lg:hidden">
+        <div class="mt-auto flex flex-wrap gap-1 pt-1 lg:hidden">
           <span
-            v-for="event in item.items.slice(0, 3)"
+            v-for="event in item.items.slice(0, 4)"
             :key="event.id"
-            class="h-1.5 w-1.5 rounded-full bg-[var(--accent)]"
+            class="h-2 w-2 rounded-full bg-[var(--accent)]"
             :style="getEventStyle(event.color) || undefined"
           ></span>
         </div>
@@ -106,7 +115,7 @@ function selectDay(dateKey) {
         </div>
         <button
           type="button"
-          class="rounded-full border border-[var(--line)] bg-white/60 px-3 py-2 text-xs font-medium text-[var(--muted)]"
+          class="mobile-card-press rounded-full border border-[var(--line)] bg-white/60 px-3 py-2 text-xs font-medium text-[var(--muted)]"
           @click="openDay(selectedDay.dateKey)"
         >
           新建
@@ -117,7 +126,7 @@ function selectDay(dateKey) {
         <article
           v-for="event in selectedDay.items"
           :key="event.id"
-          class="rounded-[20px] border px-4 py-3 text-sm shadow-[0_8px_18px_rgba(84,56,33,0.06)]"
+          class="mobile-card mobile-card-press rounded-[22px] px-4 py-3 text-sm"
           :class="getEventColor(event.color)"
           :style="getEventStyle(event.color)"
           @click="calendarStore.openEditDialog(event.id)"
@@ -131,10 +140,10 @@ function selectDay(dateKey) {
       <button
         v-else
         type="button"
-        class="w-full rounded-[22px] border border-dashed border-[var(--line)] bg-white/45 px-4 py-6 text-sm text-[var(--muted)]"
+        class="mobile-empty-state mobile-card-press w-full rounded-[24px] px-4 py-8 text-sm text-[var(--muted)]"
         @click="openDay(selectedDay.dateKey)"
       >
-        当天暂无安排
+        这一天还没有安排，点这里添加
       </button>
     </div>
   </section>

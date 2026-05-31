@@ -12,16 +12,30 @@ import { useTemplateStore } from '../stores/templates'
 import { usePaletteStore, paletteOptions, getColorHex } from '../stores/palette'
 import { getEventColor } from '../utils/calendar'
 import { replaceSchedules } from '../utils/api'
+import { exportSchedules } from '../utils/export'
+import { isLoggedIn, logout, getCurrentUser, initAuth } from '../api/auth.js'
+import { useRouter } from 'vue-router'
+import { startNotificationCheck, stopNotificationCheck, testNotification } from '../utils/notification.js'
+
+const router = useRouter()
 
 const calendarStore = useCalendarStore()
 const scheduleStore = useScheduleStore()
 const templateStore = useTemplateStore()
 const paletteStore = usePaletteStore()
 
-onMounted(() => {
+onMounted(async () => {
+  await initAuth()
   scheduleStore.load()
   templateStore.load()
   paletteStore.load()
+
+  // 启动通知检查
+  startNotificationCheck(() => scheduleStore.schedules)
+})
+
+onUnmounted(() => {
+  stopNotificationCheck()
 })
 
 const showTemplateForm = ref(false)
@@ -31,6 +45,9 @@ const showPaletteForm = ref(false)
 const newPalette = reactive({ label: '', color: 'blue', hexInput: '' })
 const showMobileManagement = ref(false)
 const activeManagementPanel = ref('menu')
+const exportStatus = ref('idle')
+const exportMessage = ref('')
+const exportJson = ref('')
 let lockedScrollY = 0
 let isBodyScrollLocked = false
 
@@ -38,7 +55,47 @@ const managementItems = computed(() => [
   { key: 'palette', title: '色签管理', desc: `${paletteStore.palettes.length} 个色签`, tone: 'palette' },
   { key: 'templates', title: '模板管理', desc: `${templateStore.templates.length} 个模板`, tone: 'template' },
   { key: 'data', title: '数据管理', desc: '导入、导出备份', tone: 'data' },
+  { key: 'account', title: isLoggedIn() ? '账号管理' : '登录同步', desc: isLoggedIn() ? '已登录，数据已同步' : '登录后可多端同步', tone: 'account' },
 ])
+
+function handleAccountAction() {
+  if (isLoggedIn()) {
+    logout()
+    window.location.reload()
+  } else {
+    router.push('/login')
+  }
+}
+
+function getDisplayName() {
+  if (isLoggedIn()) {
+    const user = getCurrentUser()
+    return user ? user.username : '已登录'
+  }
+  return '游客'
+}
+
+const syncing = ref(false)
+
+async function handleSync() {
+  if (syncing.value) return
+  syncing.value = true
+  const startTime = Date.now()
+  try {
+    await Promise.all([
+      scheduleStore.load(),
+      templateStore.load(),
+      paletteStore.load(),
+    ])
+    // 确保动画至少显示 1 秒
+    const elapsed = Date.now() - startTime
+    if (elapsed < 1000) {
+      await new Promise(resolve => setTimeout(resolve, 1000 - elapsed))
+    }
+  } finally {
+    syncing.value = false
+  }
+}
 
 function openMobileManagement(panel = 'menu') {
   activeManagementPanel.value = panel
@@ -114,15 +171,24 @@ function addPalette() {
   showPaletteForm.value = false
 }
 
-function exportData() {
+async function exportData() {
   const data = scheduleStore.schedules
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `schedules-${dayjs().format('YYYY-MM-DD')}.json`
-  a.click()
-  URL.revokeObjectURL(url)
+  const result = await exportSchedules(data)
+  if (result.ok) {
+    exportStatus.value = 'success'
+    exportMessage.value = '备份已生成'
+    exportJson.value = result.json
+  } else {
+    exportStatus.value = 'error'
+    exportMessage.value = result.error || '导出失败，请重试'
+    exportJson.value = ''
+  }
+  setTimeout(() => {
+    if (exportStatus.value !== 'idle') {
+      exportStatus.value = 'idle'
+      exportMessage.value = ''
+    }
+  }, 4000)
 }
 
 async function importData(event) {
@@ -287,7 +353,7 @@ async function importData(event) {
           <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
             <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">data</p>
             <h3 class="display-serif mt-2 text-2xl">数据管理</h3>
-            <div class="mt-4 flex gap-3">
+            <div class="mt-4 flex flex-wrap gap-3">
               <button
                 type="button"
                 class="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 text-sm font-medium text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)]"
@@ -300,25 +366,72 @@ async function importData(event) {
                 导入恢复
               </label>
             </div>
+            <div v-if="exportStatus === 'success'" class="mt-3 rounded-[20px] border border-[rgba(109,119,87,0.3)] bg-[rgba(109,119,87,0.1)] px-4 py-2 text-sm text-[var(--olive)]">
+              {{ exportMessage }}
+            </div>
+            <div v-if="exportStatus === 'error'" class="mt-3 rounded-[20px] border border-[rgba(152,74,44,0.2)] bg-[rgba(176,90,43,0.1)] px-4 py-2 text-sm text-[var(--accent-deep)]">
+              {{ exportMessage }}
+            </div>
+          </div>
+
+          <div class="hidden rounded-[26px] p-4 lg:block lg:rounded-[34px] paper-panel">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[var(--accent-deep)]">account</p>
+                <h3 class="display-serif mt-2 text-2xl">{{ getDisplayName() }}</h3>
+              </div>
+              <button
+                type="button"
+                class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line)] bg-white/55 text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-deep)] disabled:opacity-50"
+                :disabled="syncing"
+                @click="handleSync"
+                title="刷新同步"
+              >
+                <svg class="h-4 w-4" :class="{ 'animate-spin': syncing }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12a9 9 0 11-6.219-8.56" />
+                </svg>
+              </button>
+            </div>
+            <p class="mt-2 text-sm text-[var(--muted)]">
+              {{ isLoggedIn ? '数据自动同步' : '登录后可多端同步日程' }}
+            </p>
+            <button
+              type="button"
+              class="mt-4 w-full rounded-full py-2.5 text-sm font-semibold transition"
+              :class="isLoggedIn ? 'border border-[var(--line)] bg-white/55 text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-deep)]' : 'bg-[var(--accent-deep)] text-[#fff6ef] hover:bg-[var(--accent)]'"
+              @click="handleAccountAction"
+            >
+              {{ isLoggedIn ? '退出登录' : '去登录' }}
+            </button>
           </div>
         </aside>
       </section>
     </div>
 
-    <div class="mobile-action-bar fixed left-3 right-3 z-40 grid grid-cols-[1fr_auto] gap-2 lg:hidden">
+    <div class="mobile-action-bar fixed left-3 right-3 z-40 grid grid-cols-[1fr_auto_auto] gap-2 lg:hidden">
       <button
         type="button"
-        class="rounded-full bg-[var(--accent-deep)] px-5 py-3 text-sm font-semibold text-[#fff6ef] shadow-[0_16px_34px_rgba(111,47,22,0.28)]"
+        class="mobile-card-press rounded-full bg-[var(--accent-deep)] px-5 py-3 text-sm font-semibold text-[#fff6ef] shadow-[0_16px_34px_rgba(111,47,22,0.28)]"
         @click="calendarStore.openCreateDialog()"
       >
         添加日程
       </button>
       <button
         type="button"
-        class="rounded-full border border-[var(--accent-deep)] bg-[rgba(255,248,238,0.92)] px-4 py-3 text-sm font-semibold text-[var(--accent-deep)] shadow-[0_12px_26px_rgba(84,56,33,0.12)]"
+        class="mobile-card-press rounded-full border border-[var(--accent-deep)] bg-[rgba(255,248,238,0.92)] px-4 py-3 text-sm font-semibold text-[var(--accent-deep)] shadow-[0_12px_26px_rgba(84,56,33,0.12)]"
         @click="calendarStore.openBatchDialog()"
       >
         批量
+      </button>
+      <button
+        type="button"
+        class="mobile-card-press flex h-[46px] w-[46px] items-center justify-center rounded-full border border-[var(--accent-deep)] bg-[rgba(255,248,238,0.92)] text-[var(--accent-deep)] shadow-[0_12px_26px_rgba(84,56,33,0.12)] disabled:opacity-50"
+        :disabled="syncing"
+        @click="handleSync"
+      >
+        <svg class="h-5 w-5" :class="{ 'animate-spin': syncing }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12a9 9 0 11-6.219-8.56" />
+        </svg>
       </button>
     </div>
 
@@ -337,7 +450,7 @@ async function importData(event) {
               {{ activeManagementPanel === 'menu' ? 'settings' : 'manage' }}
             </p>
             <h3 class="display-serif mt-1 text-2xl">
-              {{ activeManagementPanel === 'menu' ? '管理' : activeManagementPanel === 'palette' ? '色签管理' : activeManagementPanel === 'templates' ? '模板管理' : '数据管理' }}
+              {{ activeManagementPanel === 'menu' ? '管理' : activeManagementPanel === 'palette' ? '色签管理' : activeManagementPanel === 'templates' ? '模板管理' : activeManagementPanel === 'data' ? '数据管理' : '账号管理' }}
             </h3>
           </div>
           <div class="flex items-center gap-2">
@@ -365,7 +478,7 @@ async function importData(event) {
             v-for="item in managementItems"
             :key="item.key"
             type="button"
-            class="flex w-full items-center justify-between rounded-[24px] border border-[var(--line)] bg-white/55 p-4 text-left transition active:scale-[0.99]"
+            class="mobile-card-press flex w-full items-center justify-between rounded-[24px] border border-[var(--line)] bg-white/55 p-4 text-left transition"
             @click="activeManagementPanel = item.key"
           >
             <span>
@@ -374,7 +487,7 @@ async function importData(event) {
             </span>
             <span
               class="flex h-10 w-10 items-center justify-center rounded-full text-lg"
-              :class="item.tone === 'palette' ? 'bg-[rgba(176,90,43,0.14)] text-[var(--accent-deep)]' : item.tone === 'template' ? 'bg-[rgba(109,119,87,0.16)] text-[var(--olive)]' : 'bg-white text-[var(--muted)]'"
+              :class="item.tone === 'palette' ? 'bg-[rgba(176,90,43,0.14)] text-[var(--accent-deep)]' : item.tone === 'template' ? 'bg-[rgba(109,119,87,0.16)] text-[var(--olive)]' : item.tone === 'account' ? 'bg-[rgba(88,126,255,0.12)] text-blue-600' : 'bg-white text-[var(--muted)]'"
             >
               ›
             </span>
@@ -467,7 +580,7 @@ async function importData(event) {
           </div>
         </div>
 
-        <div v-else class="space-y-3">
+        <div v-else-if="activeManagementPanel === 'data'" class="space-y-3">
           <p class="text-sm leading-6 text-[var(--muted)]">备份文件仅包含日程数据，可用于迁移或恢复。</p>
           <button
             type="button"
@@ -476,10 +589,52 @@ async function importData(event) {
           >
             导出备份
           </button>
+          <div v-if="exportStatus === 'success'" class="rounded-[20px] border border-[rgba(109,119,87,0.3)] bg-[rgba(109,119,87,0.1)] px-4 py-3 text-sm text-[var(--olive)]">
+            {{ exportMessage }}
+          </div>
+          <div v-if="exportStatus === 'error'" class="rounded-[20px] border border-[rgba(152,74,44,0.2)] bg-[rgba(176,90,43,0.1)] px-4 py-3 text-sm text-[var(--accent-deep)]">
+            {{ exportMessage }}
+          </div>
           <label class="block w-full cursor-pointer rounded-full bg-[var(--accent-deep)] px-4 py-3 text-center text-sm font-semibold text-[#fff6ef]">
             <input type="file" accept=".json" class="hidden" @change="importData" />
             导入恢复
           </label>
+        </div>
+
+        <div v-else-if="activeManagementPanel === 'account'" class="space-y-4">
+          <div class="rounded-[20px] border border-[var(--line)] bg-white/45 p-4">
+            <p class="text-xs text-[var(--muted)]">当前身份</p>
+            <p class="mt-1 text-lg font-medium">{{ getDisplayName() }}</p>
+          </div>
+          <button
+            type="button"
+            class="flex w-full items-center justify-center gap-2 rounded-full border border-[var(--line)] bg-white/60 px-4 py-3 text-sm font-semibold text-[var(--accent-deep)] transition hover:bg-white disabled:opacity-50"
+            :disabled="syncing"
+            @click="handleSync"
+          >
+            <svg class="h-4 w-4" :class="{ 'animate-spin': syncing }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 11-6.219-8.56" />
+            </svg>
+            {{ syncing ? '同步中...' : '刷新同步' }}
+          </button>
+          <button
+            type="button"
+            class="w-full rounded-full border border-[var(--line)] bg-white/60 px-4 py-3 text-sm font-semibold text-[var(--muted)] transition hover:bg-white"
+            @click="testNotification"
+          >
+            测试通知
+          </button>
+          <p class="text-sm text-[var(--muted)]">
+            {{ isLoggedIn ? '日程数据会自动同步到云端。' : '登录后可在多个设备间同步日程数据。' }}
+          </p>
+          <button
+            type="button"
+            class="w-full rounded-full py-3 text-sm font-semibold transition"
+            :class="isLoggedIn ? 'border border-[var(--line)] bg-white/60 text-[var(--muted)]' : 'bg-[var(--accent-deep)] text-[#fff6ef]'"
+            @click="handleAccountAction"
+          >
+            {{ isLoggedIn ? '退出登录' : '去登录' }}
+          </button>
         </div>
       </section>
     </div>

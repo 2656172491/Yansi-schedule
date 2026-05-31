@@ -291,35 +291,35 @@ function handleClose() {
                 </div>
 
               </div>
-              <div class="relative">
-                <label class="mb-1 block text-xs font-medium text-[var(--muted)]">开始</label>
-                <div
-                  class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
-                  :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'start') }"
-                  @click.stop="openPicker(index, 'start', row, $event)"
-                >
-                  <span class="text-[var(--ink)]">{{ row.startTime }}</span>
-                  <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
+              <div class="col-span-2 grid grid-cols-2 gap-3 lg:col-span-1 lg:grid-cols-1">
+                <div class="relative">
+                  <label class="mb-1 block text-xs font-medium text-[var(--muted)]">开始</label>
+                  <div
+                    class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
+                    :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'start') }"
+                    @click.stop="openPicker(index, 'start', row, $event)"
+                  >
+                    <span class="text-[var(--ink)]">{{ row.startTime }}</span>
+                    <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
                 </div>
-
-              </div>
-              <div class="relative">
-                <label class="mb-1 block text-xs font-medium text-[var(--muted)]">结束</label>
-                <div
-                  class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
-                  :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'end') }"
-                  @click.stop="openPicker(index, 'end', row, $event)"
-                >
-                  <span class="text-[var(--ink)]">{{ row.endTime }}</span>
-                  <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
+                <div class="relative">
+                  <label class="mb-1 block text-xs font-medium text-[var(--muted)]">结束</label>
+                  <div
+                    class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-[20px] border border-[var(--line)] bg-white/55 px-3 py-2 text-sm transition hover:border-[var(--accent)]"
+                    :class="{ 'border-[var(--accent)] ring-1 ring-[var(--accent-soft)]': isPickerOpen(index, 'end') }"
+                    @click.stop="openPicker(index, 'end', row, $event)"
+                  >
+                    <span class="text-[var(--ink)]">{{ row.endTime }}</span>
+                    <svg class="h-4 w-4 shrink-0 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
                 </div>
-
               </div>
               <button
                 type="button"

@@ -179,8 +179,8 @@ function selectDay(dateKey) {
           v-for="item in schedulesByDay"
           :key="item.dateKey"
           type="button"
-          class="min-w-[68px] rounded-[22px] border px-3 py-2 text-left transition"
-          :class="item.isSelected ? 'border-[var(--accent-deep)] bg-[var(--accent-deep)] text-[#fff6ef]' : 'border-[var(--line)] bg-white/55 text-[var(--muted)]'"
+          class="mobile-card-press min-w-[68px] rounded-[22px] px-3 py-2 text-left transition"
+          :class="item.isSelected ? 'mobile-chip-active text-[#fff6ef]' : 'mobile-chip text-[var(--muted)]'"
           @click="selectDay(item.dateKey)"
         >
           <p class="text-[10px] uppercase tracking-[0.16em] opacity-75">{{ item.day.format('ddd') }}</p>
@@ -200,7 +200,7 @@ function selectDay(dateKey) {
           </div>
           <button
             type="button"
-            class="rounded-full border border-[var(--line)] bg-white/60 px-3 py-2 text-xs font-medium text-[var(--muted)]"
+            class="rounded-full border border-[var(--line)] bg-white/60 px-3 py-2 text-xs font-medium text-[var(--muted)] mobile-card-press"
             @click="calendarStore.openCreateDialog(selectedDay.dateKey)"
           >
             新建
@@ -211,7 +211,7 @@ function selectDay(dateKey) {
           <article
             v-for="event in selectedDay.items"
             :key="event.id"
-            class="rounded-[22px] border px-4 py-3 shadow-[0_10px_24px_rgba(84,56,33,0.08)]"
+            class="mobile-card mobile-card-press rounded-[22px] px-4 py-3"
             :class="getEventColor(event.color)"
             :style="getEventStyle(event.color)"
             @click="calendarStore.openEditDialog(event.id)"
@@ -229,7 +229,7 @@ function selectDay(dateKey) {
         <button
           v-else
           type="button"
-          class="w-full rounded-[24px] border border-dashed border-[var(--line)] bg-white/45 px-4 py-8 text-center text-sm text-[var(--muted)]"
+          class="mobile-empty-state mobile-card-press w-full rounded-[24px] px-4 py-8 text-center text-sm text-[var(--muted)]"
           @click="calendarStore.openCreateDialog(selectedDay.dateKey)"
         >
           这一天还没有安排，点这里添加
