@@ -1,149 +1,145 @@
 # 言寺日程
 
-言寺日程是一个本地优先的中文日程管理应用，采用温暖纸张质感的日历界面，支持周视图、月视图、模板、配色、数据导入导出，以及 Tauri 2 桌面端和 Android 移动端封装。
+一个本地优先的中文日程管理应用，温暖纸张质感日历界面。支持 Web、Chrome 扩展、Tauri 桌面端和 Android 移动端。
 
-## 功能特点
+<p align="center">
+  <img src="public/mk/1.png" alt="言寺日程主界面" width="820" />
+</p>
 
-- 周视图：课程表式日程布局，支持按时间段查看安排。
-- 月视图：整月日历网格，单日安排过多时可在单元格内滚动查看。
-- 日程管理：新增、编辑、删除日程，支持标题、日期、开始/结束时间、颜色和备注。
-- 时间冲突检测：同一天重叠时间段会被阻止保存。
-- 模板管理：可保存常用日程模板，快速复用。
-- 自定义配色：支持预设颜色和自定义 HEX 颜色。
-- 本地存储：数据保存在浏览器本地存储中，刷新后保留。
-- 数据管理：支持导入、导出和清空本地数据。
-- 移动端适配：小屏幕使用紧凑顶部栏、底部快捷操作和居中管理浮窗。
-- 沉浸式状态栏：Android 端预留顶部安全区，避免内容和状态栏重叠。
+## 功能
+
+- **周视图** — 课程表式日程布局，点击空白时间段快速创建
+- **月视图** — 整月日历网格，单击选日、双击创建
+- **日程管理** — 标题、日期、时间、颜色标签、备注，时间冲突自动检测
+- **模板系统** — 保存常用日程模板，一键复用
+- **自定义配色** — 预设颜色 + 自定义 HEX 色签
+- **数据导入导出** — JSON 格式备份与恢复
+- **系统通知** — 日程开始前 60 分钟自动提醒（Android 支持悬浮通知）
+- **多端同步** — 注册登录后日程、模板、色签自动云端同步
+- **移动端适配** — 沉浸式状态栏、底部操作栏、居中管理浮窗
 
 ## 技术栈
 
-- Vue 3
-- Vite
-- Pinia
-- Vue Router
-- Day.js
-- Tailwind CSS
-- Tauri 2
+| 层级 | 技术 |
+|---|---|
+| 前端 | Vue 3 + Vite 8 + Pinia 3 + Tailwind CSS 4 |
+| 日期 | Day.js |
+| 桌面/移动 | Tauri 2（Rust 后端，Android 支持） |
+| 后端 | Express + better-sqlite3 + JWT 认证 |
+| 测试 | Vitest |
 
-## 开发环境
+## 快速开始
 
-建议使用 Node.js 20 或更高版本。
+```bash
+# 安装依赖
+npm install
 
-桌面端打包还需要安装 Rust 与 Tauri 2 所需的 Windows 构建环境。Windows 推荐安装 Microsoft Visual Studio Build Tools，并勾选 C++ 桌面开发工具链。
+# 启动前端开发服务器
+npm run dev
 
-Android 打包需要 Android SDK、NDK、JDK 和 Rust Android target。当前 Windows 环境中如果命令行未继承用户环境变量，可以在同一个 PowerShell 会话中临时加载：
+# 启动后端服务（需要先配置 server/.env）
+cd server && npm install && npm run dev
+```
+
+### 后端配置
+
+复制 `server/.env.example` 为 `server/.env`，配置必要环境变量：
+
+```env
+JWT_SECRET=your-secret-key-here
+CORS_ORIGIN=http://localhost:5173
+```
+
+## 开发命令
+
+| 命令 | 说明 |
+|---|---|
+| `npm run dev` | 启动 Web 开发服务器 |
+| `npm run build` | 构建生产版本 |
+| `npm run preview` | 预览生产构建 |
+| `npm test` | 运行测试（21 个用例） |
+| `npm run test:watch` | 测试监听模式 |
+| `npm run tauri:dev` | Tauri 桌面端开发 |
+| `npm run tauri:build` | 构建桌面端安装包 |
+| `npm run tauri:android:dev` | Tauri Android 开发 |
+| `npm run tauri:android:build` | 构建 Android APK/AAB |
+
+### Android 环境
+
+Android 打包需要 Android SDK、NDK、JDK 和 Rust Android target。Windows 环境如命令行未继承用户环境变量：
 
 ```powershell
 $env:ANDROID_HOME=[Environment]::GetEnvironmentVariable('ANDROID_HOME','User')
 $env:NDK_HOME=[Environment]::GetEnvironmentVariable('NDK_HOME','User')
 ```
 
-安装依赖：
-
-```bash
-npm install
-```
-
-启动开发服务器：
-
-```bash
-npm run dev
-```
-
-构建生产版本：
-
-```bash
-npm run build
-```
-
-本地预览构建产物：
-
-```bash
-npm run preview
-```
-
-启动 Tauri 桌面开发模式：
-
-```bash
-npm run tauri:dev
-```
-
-启动 Tauri Android 开发模式：
-
-```bash
-npm run tauri:android:dev
-```
-
-构建桌面端安装包：
-
-```bash
-npm run tauri:build
-```
-
-构建 Android 安装包：
-
-```bash
-npm run tauri:android:build
-```
-
-调试构建可使用：
-
-```bash
-npx tauri build --debug
-```
-
-常用发版产物位置：
-
-```text
-src-tauri/target/release/言寺日程.exe
-src-tauri/target/release/bundle/msi/言寺日程_0.1.0_x64_en-US.msi
-src-tauri/target/release/bundle/nsis/言寺日程_0.1.0_x64-setup.exe
-src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
-src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab
-```
-
-Tauri 2 支持移动端封装。当前仓库已配置 Android Gradle 工程，并保留 Windows 桌面端构建流程。
-
 ## 项目结构
 
-```text
+```
 src/
+  api/                 # 后端 API 客户端（认证、日程同步）
   components/
-    calendar/      # 周视图、月视图、工具栏
-    schedule/      # 日程编辑与批量创建弹窗
-  stores/          # Pinia 状态管理
-  styles/          # 全局样式
-  utils/           # 日期、日历布局、存储工具
-  views/           # 页面视图
-public/            # Chrome 扩展清单与后台脚本
-src-tauri/          # Tauri 桌面端和 Android 端封装配置
+    calendar/          # 周视图、月视图、工具栏
+    schedule/          # 日程编辑与批量创建弹窗
+  stores/              # Pinia 状态管理（日程、日历、模板、色签）
+  styles/              # 全局样式与 CSS 变量
+  utils/               # 日期、日历布局、存储、通知、导出工具
+  views/               # 页面视图（日历、登录）
+  __tests__/           # 单元测试
+server/
+  src/
+    index.js           # Express 服务入口（CORS、限流、错误处理）
+    auth.js            # JWT 认证（注册、登录、权限中间件）
+    database.js        # SQLite 数据库初始化
+    schedules.js       # 日程 CRUD + 批量同步
+    templates.js       # 模板管理
+    palettes.js        # 色签管理
+src-tauri/             # Tauri 桌面端与 Android 配置
+public/                # 静态资源与 Chrome 扩展清单
 ```
 
-## 使用说明
+## 架构设计
 
-1. 在顶部工具栏切换周视图或月视图。
-2. 单击日期可选中当天，并查看当天日程列表。
-3. 双击月视图日期或点击周视图空白时间段可创建日程。
-4. 点击已有日程可打开编辑弹窗。
-5. 桌面端可在侧栏管理模板、配色和本地数据。
-6. 移动端点击顶部 `⋯ 管理` 打开居中管理浮窗，进入色签、模板和数据管理。
+### 数据流
 
-## 数据说明
+```
+CalendarView.vue
+  ├── CalendarToolbar.vue     # 视图切换、日期导航
+  ├── WeekCalendar.vue        # 周视图网格
+  ├── MonthCalendar.vue       # 月视图网格
+  ├── ScheduleDialog.vue      # 单条日程编辑
+  └── BatchScheduleDialog.vue # 模板批量创建
+```
 
-应用以本地优先方式运行，日程、模板和配色数据保存在浏览器本地存储中。导出数据后可在其他浏览器或设备中导入恢复。
+### 存储层
 
-在 Chrome 扩展环境中，日程接口优先使用 `chrome.storage.local`。在 Tauri 或普通 WebView 环境中，会自动回退到 `localStorage`。
+- **`src/utils/api.js`** — 存储抽象层，登录状态走远程 API，未登录走本地
+- **Chrome 扩展** — `chrome.storage.local`
+- **Tauri/Web** — `localStorage`
+- **后端同步** — RESTful API + SQLite
 
-## 预览
+### 安全措施
 
-桌面端和移动端保持同一套温暖纸张视觉，移动端针对小屏幕重排工具栏、日程列表和管理入口。
+- JWT 密钥强制环境变量配置，启动时校验
+- 登录/注册速率限制（15 分钟 20 次）
+- CORS 域名白名单
+- 请求体大小限制（1MB）
+- Sync 路由逐项数据格式验证
 
-<p align="center">
-  <img src="public/mk/1.png" alt="言寺日程主界面预览" width="820" />
-</p>
+## 发版产物
+
+```
+src-tauri/target/release/言寺日程.exe                    # Windows 可执行文件
+src-tauri/target/release/bundle/msi/言寺日程_0.1.0_x64_en-US.msi    # MSI 安装包
+src-tauri/target/release/bundle/nsis/言寺日程_0.1.0_x64-setup.exe   # NSIS 安装包
+src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk  # Android APK
+src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab # Android AAB
+```
+
+## 界面预览
 
 <details>
-<summary>展开更多界面截图</summary>
+<summary>展开截图</summary>
 
 | 桌面端 | 移动端 |
 | --- | --- |
@@ -152,7 +148,7 @@ src-tauri/          # Tauri 桌面端和 Android 端封装配置
 | <img src="public/mk/4.png" alt="桌面端日程编辑" width="420" /> | <img src="public/mk/9.jpg" alt="移动端日程编辑" width="220" /> |
 | <img src="public/mk/5.png" alt="桌面端管理面板" width="420" /> | <img src="public/mk/10.jpg" alt="移动端管理入口" width="220" /> |
 | <img src="public/mk/6.png" alt="桌面端数据管理" width="420" /> | <img src="public/mk/11.jpg" alt="移动端色签管理" width="220" /> |
-|  | <img src="public/mk/12.jpg" alt="移动端模板管理" width="220" /> |
-|  | <img src="public/mk/13.jpg" alt="移动端数据管理" width="220" /> |
+| | <img src="public/mk/12.jpg" alt="移动端模板管理" width="220" /> |
+| | <img src="public/mk/13.jpg" alt="移动端数据管理" width="220" /> |
 
 </details>
