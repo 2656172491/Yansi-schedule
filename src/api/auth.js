@@ -1,7 +1,10 @@
 import { api } from './client.js';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const currentUser = ref(null);
+
+// 响应式登录状态：currentUser 或 token 存在即为已登录
+export const isLoggedIn = computed(() => !!currentUser.value || !!api.getToken());
 
 export async function register(username, password, email) {
   const data = await api.post('/auth/register', { username, password, email });
@@ -25,10 +28,6 @@ export async function getMe() {
 export function logout() {
   api.clearToken();
   currentUser.value = null;
-}
-
-export function isLoggedIn() {
-  return !!api.getToken();
 }
 
 export function getCurrentUser() {

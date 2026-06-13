@@ -176,7 +176,13 @@ export async function testNotification() {
 // 请求通知权限
 export async function requestNotificationPermission() {
   if (!isTauri()) {
-    return true
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') return true
+      if (Notification.permission === 'denied') return false
+      const permission = await Notification.requestPermission()
+      return permission === 'granted'
+    }
+    return false
   }
 
   try {

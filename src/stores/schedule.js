@@ -90,8 +90,9 @@ export const useScheduleStore = defineStore('schedule', () => {
     try {
       await apiDelete(id)
       schedules.value = schedules.value.filter((item) => item.id !== id)
-    } catch {
-      // silent fail or handle error
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, reason: 'network', error: err.message }
     }
   }
 

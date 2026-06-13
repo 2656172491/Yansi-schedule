@@ -36,11 +36,11 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopNotificationCheck()
+  unlockBodyScroll()
 })
-
-const showTemplateForm = ref(false)
 const newTpl = reactive({ label: '', title: '', color: 'blue', notes: '' })
 
+const showTemplateForm = ref(false)
 const showPaletteForm = ref(false)
 const newPalette = reactive({ label: '', color: 'blue', hexInput: '' })
 const showMobileManagement = ref(false)
@@ -55,11 +55,11 @@ const managementItems = computed(() => [
   { key: 'palette', title: '色签管理', desc: `${paletteStore.palettes.length} 个色签`, tone: 'palette' },
   { key: 'templates', title: '模板管理', desc: `${templateStore.templates.length} 个模板`, tone: 'template' },
   { key: 'data', title: '数据管理', desc: '导入、导出备份', tone: 'data' },
-  { key: 'account', title: isLoggedIn() ? '账号管理' : '登录同步', desc: isLoggedIn() ? '已登录，数据已同步' : '登录后可多端同步', tone: 'account' },
+  { key: 'account', title: isLoggedIn.value ? '账号管理' : '登录同步', desc: isLoggedIn.value ? '已登录，数据已同步' : '登录后可多端同步', tone: 'account' },
 ])
 
 function handleAccountAction() {
-  if (isLoggedIn()) {
+  if (isLoggedIn.value) {
     logout()
     window.location.reload()
   } else {
@@ -68,7 +68,7 @@ function handleAccountAction() {
 }
 
 function getDisplayName() {
-  if (isLoggedIn()) {
+  if (isLoggedIn.value) {
     const user = getCurrentUser()
     return user ? user.username : '已登录'
   }
@@ -76,10 +76,12 @@ function getDisplayName() {
 }
 
 const syncing = ref(false)
+const syncWarning = ref('')
 
 async function handleSync() {
   if (syncing.value) return
   syncing.value = true
+  syncWarning.value = ''
   const startTime = Date.now()
   try {
     await Promise.all([
@@ -92,6 +94,8 @@ async function handleSync() {
     if (elapsed < 1000) {
       await new Promise(resolve => setTimeout(resolve, 1000 - elapsed))
     }
+  } catch (err) {
+    syncWarning.value = '同步失败，已使用本地数据'
   } finally {
     syncing.value = false
   }
@@ -136,10 +140,6 @@ watch(showMobileManagement, (visible) => {
     lockBodyScroll()
     return
   }
-  unlockBodyScroll()
-})
-
-onUnmounted(() => {
   unlockBodyScroll()
 })
 
@@ -216,6 +216,11 @@ async function importData(event) {
   <main class="app-shell min-h-screen px-3 text-[var(--ink)] sm:px-4 lg:px-6">
     <div class="mx-auto max-w-[1460px] space-y-4 lg:space-y-6">
       <CalendarToolbar @open-management="openMobileManagement()" />
+
+      <div v-if="syncWarning" class="rounded-[16px] border border-[rgba(176,90,43,0.25)] bg-[rgba(176,90,43,0.08)] px-4 py-2 text-sm text-[var(--accent-deep)] flex items-center justify-between">
+        <span>{{ syncWarning }}</span>
+        <button type="button" class="ml-2 text-xs opacity-60 hover:opacity-100" @click="syncWarning = ''">×</button>
+      </div>
 
       <section class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6">
         <component :is="calendarStore.viewMode === 'week' ? WeekCalendar : MonthCalendar" />
