@@ -35,8 +35,8 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  stopNotificationCheck()
   unlockBodyScroll()
+  stopNotificationCheck()
 })
 const newTpl = reactive({ label: '', title: '', color: 'blue', notes: '' })
 
@@ -96,6 +96,7 @@ async function handleSync() {
     }
   } catch (err) {
     syncWarning.value = '同步失败，已使用本地数据'
+    setTimeout(() => { syncWarning.value = '' }, 5000)
   } finally {
     syncing.value = false
   }

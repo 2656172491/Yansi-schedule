@@ -57,7 +57,7 @@ export const useScheduleStore = defineStore('schedule', () => {
 
   function generateId() {
     if (crypto.randomUUID) return crypto.randomUUID()
-    // 回退：非安全上下文兼容
+    console.warn('[schedule] crypto.randomUUID 不可用，使用 Math.random 回退')
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       const r = Math.random() * 16 | 0
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)

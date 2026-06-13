@@ -42,6 +42,9 @@ app.get('/api/health', (req, res) => {
 
 // 错误处理
 app.use((err, req, res, next) => {
+  if (err.message === 'CORS 不允许的来源') {
+    return res.status(403).json({ error: err.message });
+  }
   console.error(err.stack);
   res.status(500).json({ error: '服务器内部错误' });
 });
