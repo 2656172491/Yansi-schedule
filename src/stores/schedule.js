@@ -55,11 +55,20 @@ export const useScheduleStore = defineStore('schedule', () => {
     })
   }
 
+  function generateId() {
+    if (crypto.randomUUID) return crypto.randomUUID()
+    // 回退：非安全上下文兼容
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+    })
+  }
+
   async function addSchedule(payload) {
     if (hasTimeConflict(payload)) {
       return { ok: false, reason: 'conflict' }
     }
-    const item = { id: crypto.randomUUID(), ...payload }
+    const item = { id: generateId(), ...payload }
     try {
       await createSchedule(item)
       schedules.value.push(item)

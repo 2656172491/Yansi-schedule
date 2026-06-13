@@ -199,8 +199,8 @@ async function importData(event) {
     const data = JSON.parse(text)
     if (!Array.isArray(data)) throw new Error('格式错误：应为数组')
     for (const item of data) {
-      if (!item.id || !item.date || !item.startTime || !item.endTime) {
-        throw new Error('数据字段不完整')
+      if (!item.id || !item.title || !item.date || !item.startTime || !item.endTime) {
+        throw new Error('数据字段不完整（需要 id/title/date/startTime/endTime）')
       }
     }
     await replaceSchedules(data)

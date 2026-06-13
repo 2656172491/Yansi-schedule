@@ -6,6 +6,7 @@ const NOTIFIED_KEY = 'notified_schedule_ids'
 
 let checkTimer = null
 let isSupported = false
+let channelCreated = false
 
 // 检查是否在 Tauri 环境
 function isTauri() {
@@ -85,17 +86,20 @@ async function sendNotification(title, body) {
     if (granted) {
       const channelId = 'schedule-reminder'
 
-      await notification.createChannel({
-        id: channelId,
-        name: '日程提醒',
-        description: '日程即将开始的提醒通知',
-        importance: notification.Importance.High,
-        visibility: notification.Visibility.Public,
-        lights: true,
-        vibration: true,
-        sound: 'default',
-      })
-      console.log('[通知] 渠道已创建:', channelId)
+      if (!channelCreated) {
+        await notification.createChannel({
+          id: channelId,
+          name: '日程提醒',
+          description: '日程即将开始的提醒通知',
+          importance: notification.Importance.High,
+          visibility: notification.Visibility.Public,
+          lights: true,
+          vibration: true,
+          sound: 'default',
+        })
+        channelCreated = true
+        console.log('[通知] 渠道已创建:', channelId)
+      }
 
       notification.sendNotification({
         title,
