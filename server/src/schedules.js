@@ -132,6 +132,26 @@ router.post('/sync', (req, res) => {
     return res.status(400).json({ error: 'schedules 必须是数组' });
   }
 
+  if (schedules.length > 1000) {
+    return res.status(400).json({ error: '单次同步不能超过 1000 条' });
+  }
+
+  // 验证每项数据
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+  const timeRe = /^\d{2}:\d{2}$/;
+  for (let i = 0; i < schedules.length; i++) {
+    const item = schedules[i];
+    if (!item.id || !item.title || !item.date || !item.startTime || !item.endTime) {
+      return res.status(400).json({ error: `第 ${i + 1} 条数据缺少必填字段（id/title/date/startTime/endTime）` });
+    }
+    if (!dateRe.test(item.date)) {
+      return res.status(400).json({ error: `第 ${i + 1} 条日期格式错误，应为 YYYY-MM-DD` });
+    }
+    if (!timeRe.test(item.startTime) || !timeRe.test(item.endTime)) {
+      return res.status(400).json({ error: `第 ${i + 1} 条时间格式错误，应为 HH:mm` });
+    }
+  }
+
   const insertStmt = db.prepare(`
     INSERT OR REPLACE INTO schedules (id, user_id, title, date, start_time, end_time, color, notes, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))

@@ -1,11 +1,26 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import db from './database.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'schedule-planner-secret-key';
+
+// 登录/注册速率限制：15 分钟内最多 20 次
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: '请求过于频繁，请 15 分钟后再试' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('[FATAL] JWT_SECRET 环境变量未配置，请在 .env 中设置后重启服务');
+  process.exit(1);
+}
 const JWT_EXPIRES_IN = '7d';
 
 // 生成 JWT token
@@ -31,7 +46,7 @@ export function authMiddleware(req, res, next) {
 }
 
 // 注册
-router.post('/register', (req, res) => {
+router.post('/register', authLimiter, (req, res) => {
   const { username, password, email } = req.body;
 
   if (!username || !password) {
@@ -65,7 +80,7 @@ router.post('/register', (req, res) => {
 });
 
 // 登录
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
